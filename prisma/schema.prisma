@@ -1,0 +1,191 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
+  // Further reading:
+  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+  url      = env("DATABASE_URL")
+}
+
+// Necessary for Next auth
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? // @db.Text
+  access_token      String? // @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? // @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Person {
+  id         String   @id @default(cuid())
+  name       String?
+  f_lastname String?
+  m_lastname String?
+  phone      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  // Might or might not be a user
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+enum UserType {
+  USER
+  PUBLISHER
+  ADMIN
+}
+
+model User {
+  id            String       @id @default(cuid())
+  name          String?
+  email         String?      @unique
+  username      String?      @unique
+  password      String?
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime     @default(now())
+  isActive      Boolean      @default(true)
+  userType      UserType     @default(USER)
+  accounts      Account[]
+  sessions      Session[]
+  Person        Person[]
+  Volunteers    Volunteers[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Own models.
+//AKA marca
+model Brand {
+  id        String    @id @default(cuid())
+  name      String
+  image     String? //Might have a logo
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Product   Product[]
+}
+
+//AKA Categorias
+model Category {
+  id    String  @id @default(cuid())
+  name  String
+  image String? //Might have an image
+  icon  String? //Might have an icon
+
+  parentId  String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  parent    Category?  @relation("Category", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  children  Category[] @relation("Category")
+  Product   Product[]
+}
+
+enum ProductAvailability {
+  //A pedido
+  ON_REQUEST
+  //Disponible
+  AVAILABLE
+  //Agotado
+  OUT_OF_STOCK
+  //En transito
+  IN_TRANSIT
+}
+
+//AKA productos
+model Product {
+  id                   String              @id @default(cuid())
+  name                 String
+  availability         ProductAvailability @default(AVAILABLE)
+  principalImage       String?
+  images               Json?
+  files                Json?
+  comercialDescription String?
+  comercialResume      String?
+  //Tiny description of the model product
+  label                String?
+  //What comes in the box
+  pieces               Json?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  categoryId           String
+  brandId              String
+
+  category Category @relation(fields: [categoryId], references: [id])
+  brand    Brand    @relation(fields: [brandId], references: [id])
+}
+
+model BiometricPosts {
+  id    String     @id @default(cuid())
+  whoId String
+  date  DateTime
+  who   Volunteers @relation(fields: [whoId], references: [biometricId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Skills {
+  id         String       @id @default(cuid())
+  name       String
+  volunteers Volunteers[]
+}
+
+model Procedence {
+  id         String       @id @default(cuid())
+  name       String
+  volunteers Volunteers[]
+}
+
+model Genders {
+  id         String       @id @default(cuid())
+  name       String
+  volunteers Volunteers[]
+}
+
+model Volunteers {
+  id             String           @id @default(cuid())
+  name           String
+  lastname       String?
+  emails         Json?
+  biometricId    String?          @unique
+  phones         Json?
+  userId         String?
+  user           User?            @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  skills         Skills[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  biometricPosts BiometricPosts[]
+  procedence     Procedence[]
+  birthdate      DateTime?
+  gender         Genders?         @relation(fields: [genderId], references: [id])
+  genderId       String?
+  image          String?
+}

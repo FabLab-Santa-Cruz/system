@@ -1,0 +1,29 @@
+{
+	"nodes":[
+		{"id":"05f91da98e3beb94","type":"text","text":"Hito 1","x":-1090,"y":-480,"width":250,"height":110,"color":"3"},
+		{"id":"1aacf676f0d2e55a","type":"text","text":"To Do","x":-830,"y":-560,"width":250,"height":60},
+		{"id":"2c40552b328e8987","type":"text","text":"Doing","x":-570,"y":-560,"width":250,"height":60},
+		{"id":"442860bc20ea2381","type":"text","text":"Verify","x":-310,"y":-560,"width":250,"height":60},
+		{"id":"7f92b1c8282951c9","type":"text","text":"Done","x":-40,"y":-560,"width":830,"height":60},
+		{"id":"1dbf84243fe5559e","type":"text","text":"Supongo que aca nos pusimos al dia, no estuve hasta mitad de marzo","x":-40,"y":-480,"width":250,"height":110,"color":"3"},
+		{"id":"cda0d3cef6987eb1","type":"text","text":"Hito 2","x":-1090,"y":-340,"width":250,"height":105,"color":"4"},
+		{"id":"c35cdd1c2a2ffe4a","type":"text","text":"Hito 3","x":-1090,"y":-220,"width":250,"height":340,"color":"5"},
+		{"id":"29fed67fbe58c66f","type":"text","text":"Verificacion de proyecto","x":-40,"y":-340,"width":250,"height":50,"color":"4"},
+		{"id":"8b5686f62ef4c737","type":"text","text":"Investigacion sobre necesidades del FabLab","x":-40,"y":-285,"width":250,"height":50,"color":"4"},
+		{"id":"2eb0f621961f32b3","type":"text","text":"Averiguar que es un FabLab","x":240,"y":-340,"width":250,"height":50,"color":"4"},
+		{"id":"cdb6571161a5d1b8","type":"text","text":"Mision y vision de un FabLab","x":240,"y":-285,"width":250,"height":50,"color":"4"},
+		{"id":"ede78589abf51ada","type":"text","text":"Reacomodacion de automatización de impresion a gestión integral del FabLab","x":520,"y":-340,"width":250,"height":105,"color":"1"},
+		{"id":"6db39315b62dc416","type":"text","text":"Propuesta de IA para predicción de uso de materiales en el FabLab","x":-310,"y":-335,"width":250,"height":100,"color":"4"},
+		{"id":"83072690038fc7ad","type":"text","text":"Propuesta de proyecto: Sistema de gestión integral para FabLab Santa Cruz","x":-560,"y":-220,"width":240,"height":120,"color":"5"},
+		{"id":"31a2c2fcbc710ccc","type":"text","text":"Hito 4","x":-1090,"y":140,"width":250,"height":60},
+		{"id":"09bcdc88ddc45587","type":"text","text":"Hito 5","x":-1090,"y":220,"width":250,"height":60},
+		{"id":"c8949d7302b77388","type":"text","text":"Entrevista con voluntarios acerca de inventarios en el FabLab","x":-40,"y":-90,"width":250,"height":80,"color":"5"},
+		{"id":"9664ffbdac16ebfa","type":"text","text":"Consultar alcance con la ingeniera Grecia","x":-40,"y":0,"width":250,"height":80,"color":"5"},
+		{"id":"8e85fd70b352b4e2","type":"text","text":"Definicion de objetivos","x":-310,"y":-220,"width":250,"height":50,"color":"5"},
+		{"id":"13c5e0eba62fa031","type":"text","text":"Realización de un diagrama ER de la base de datos en base a los objetivos","x":-810,"y":-220,"width":240,"height":120,"color":"5"},
+		{"id":"a50019871e57b646","type":"text","text":"Elección de stack de software","x":-310,"y":-158,"width":250,"height":58,"color":"5"},
+		{"id":"886cde88c963f49a","type":"text","text":"Codear el primer módulo correspondiente a control de personal","x":-810,"y":-80,"width":240,"height":120,"color":"5"},
+		{"id":"05d1bf6663ec1d6f","type":"text","text":"Codear el primer módulo correspondiente a control de personal","x":-560,"y":-80,"width":240,"height":120,"color":"5"}
+	],
+	"edges":[]
+}

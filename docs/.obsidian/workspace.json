@@ -1,0 +1,206 @@
+{
+  "main": {
+    "id": "6204286917f25d1c",
+    "type": "split",
+    "children": [
+      {
+        "id": "8f7f662386f88713",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "161237c3a54b76f3",
+            "type": "leaf",
+            "state": {
+              "type": "image",
+              "state": {
+                "file": "ClassDiagram.svg"
+              }
+            }
+          },
+          {
+            "id": "90d217fe6b2e56b2",
+            "type": "leaf",
+            "state": {
+              "type": "dataloom",
+              "state": {
+                "file": "Untitled.loom"
+              }
+            }
+          },
+          {
+            "id": "7b6f4c841cdd59c2",
+            "type": "leaf",
+            "state": {
+              "type": "diagram-edit",
+              "state": {
+                "file": "ClassDiagram.svg"
+              }
+            }
+          },
+          {
+            "id": "cb1b9fc398fe7355",
+            "type": "leaf",
+            "state": {
+              "type": "dataloom",
+              "state": {
+                "file": "Untitled.loom"
+              }
+            }
+          }
+        ],
+        "currentTab": 3
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "0aba6cbed16cdaea",
+    "type": "split",
+    "children": [
+      {
+        "id": "38fc0e560bd2e69d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c58ba3d4b14e45f2",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "78fdc4bc92928a9c",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "f8833d1dfb96c109",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "7ac6800365bc0323",
+    "type": "split",
+    "children": [
+      {
+        "id": "8b4f7267b4a7fc6f",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "7b225e586e3cd50e",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Untitled.loom",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "dde553dd052fb4fa",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Untitled.loom",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "9e26ba8d1fd7b536",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "e105059a26a6f060",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Untitled.loom"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "obsidian-excalidraw-plugin:Create new drawing": false,
+      "notion-like-tables:Create loom": false
+    }
+  },
+  "active": "cb1b9fc398fe7355",
+  "lastOpenFiles": [
+    "Tablero KanBan.canvas",
+    "Untitled.loom",
+    "ClassDiagram.svg",
+    "README.md",
+    "Excalidraw/Drawing 2024-04-20 18.58.39.excalidraw.md",
+    "Excalidraw/Scripts/Downloaded/Create DrawIO file.svg",
+    "Excalidraw/Scripts/Downloaded/Create DrawIO file.md",
+    "Excalidraw/Scripts/Downloaded/Boolean Operations.svg",
+    "Excalidraw/Scripts/Downloaded/Boolean Operations.md",
+    "Excalidraw/Scripts/Downloaded/Auto Layout.svg",
+    "Excalidraw/Scripts/Downloaded/Auto Layout.md",
+    "Excalidraw/Scripts/Downloaded",
+    "Excalidraw/Scripts",
+    "Excalidraw",
+    "doc.synctex(busy)",
+    "indent.log",
+    "__latexindent_temp_doc.tex",
+    "doc.log",
+    "doc.pdf",
+    "doc.toc",
+    "images/treeproblem.jpg",
+    "treeproblem.jpg",
+    "Problem Tree Template (1).jpg"
+  ]
+}

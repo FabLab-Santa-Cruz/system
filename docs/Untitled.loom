@@ -1,0 +1,169 @@
+{
+  "model": {
+    "columns": [
+      {
+        "id": "d2ceeb6d-3a40-407e-87e2-d1ce5a36b14f",
+        "sortDir": "default",
+        "isVisible": true,
+        "width": "140px",
+        "type": "text",
+        "numberPrefix": "",
+        "numberSuffix": "",
+        "numberSeparator": "",
+        "content": "New Column",
+        "numberFormat": "number",
+        "currencyType": "USD",
+        "dateFormat": "mmddyyyy",
+        "dateFormatSeparator": "-",
+        "hour12": true,
+        "includeTime": false,
+        "shouldWrapOverflow": true,
+        "tags": [],
+        "calculationType": "none",
+        "aspectRatio": "unset",
+        "horizontalPadding": "unset",
+        "verticalPadding": "unset",
+        "frontmatterKey": null
+      },
+      {
+        "id": "3e9de1e1-51ce-4657-af33-c84fa1ab4050",
+        "sortDir": "default",
+        "isVisible": true,
+        "width": "140px",
+        "type": "text",
+        "numberPrefix": "",
+        "numberSuffix": "",
+        "numberSeparator": "",
+        "content": "New Column",
+        "numberFormat": "number",
+        "currencyType": "USD",
+        "dateFormat": "mmddyyyy",
+        "dateFormatSeparator": "-",
+        "hour12": true,
+        "includeTime": false,
+        "shouldWrapOverflow": true,
+        "tags": [],
+        "calculationType": "none",
+        "aspectRatio": "unset",
+        "horizontalPadding": "unset",
+        "verticalPadding": "unset",
+        "frontmatterKey": null
+      },
+      {
+        "id": "f3e7bf2f-77fb-46a7-8187-d22dfb32ae9b",
+        "sortDir": "default",
+        "isVisible": true,
+        "width": "140px",
+        "type": "text",
+        "numberPrefix": "",
+        "numberSuffix": "",
+        "numberSeparator": "",
+        "content": "New Column",
+        "numberFormat": "number",
+        "currencyType": "USD",
+        "dateFormat": "mmddyyyy",
+        "dateFormatSeparator": "-",
+        "hour12": true,
+        "includeTime": false,
+        "shouldWrapOverflow": true,
+        "tags": [],
+        "calculationType": "none",
+        "aspectRatio": "unset",
+        "horizontalPadding": "unset",
+        "verticalPadding": "unset",
+        "frontmatterKey": null
+      }
+    ],
+    "rows": [
+      {
+        "id": "85ef9829-4b3e-4b94-b103-6a3eb89bb7bd",
+        "index": 0,
+        "sourceId": null,
+        "creationDateTime": "2024-04-20T23:05:07.734Z",
+        "lastEditedDateTime": "2024-04-20T23:05:07.734Z",
+        "cells": [
+          {
+            "id": "dc4bb6df-7de7-4553-b508-11353ecf3541",
+            "columnId": "d2ceeb6d-3a40-407e-87e2-d1ce5a36b14f",
+            "content": "",
+            "hasValidFrontmatter": null
+          },
+          {
+            "id": "f3c926ef-79cf-4176-8bf5-f5dac5dee299",
+            "columnId": "3e9de1e1-51ce-4657-af33-c84fa1ab4050",
+            "content": "",
+            "hasValidFrontmatter": null
+          },
+          {
+            "id": "92ad54b8-2927-4b51-905f-2758971bcfe7",
+            "columnId": "f3e7bf2f-77fb-46a7-8187-d22dfb32ae9b",
+            "content": "",
+            "hasValidFrontmatter": null
+          }
+        ]
+      },
+      {
+        "id": "6df06340-f7fd-4b19-b90b-f97c752d38e8",
+        "index": 1,
+        "sourceId": null,
+        "creationDateTime": "2024-04-20T23:05:27.135Z",
+        "lastEditedDateTime": "2024-04-20T23:05:27.135Z",
+        "cells": [
+          {
+            "id": "9bf888fe-6e3f-4d6c-93fa-6432fdeb27d1",
+            "columnId": "d2ceeb6d-3a40-407e-87e2-d1ce5a36b14f",
+            "content": "",
+            "hasValidFrontmatter": null
+          },
+          {
+            "id": "5cca71de-87e1-4d78-9aed-98751f633e45",
+            "columnId": "3e9de1e1-51ce-4657-af33-c84fa1ab4050",
+            "content": "",
+            "hasValidFrontmatter": null
+          },
+          {
+            "id": "dcd1cfde-28fa-44e9-82db-74ea19b7f2ee",
+            "columnId": "f3e7bf2f-77fb-46a7-8187-d22dfb32ae9b",
+            "content": "",
+            "hasValidFrontmatter": null
+          }
+        ]
+      },
+      {
+        "id": "3e4f21e8-a142-47eb-b072-8afa6b0b9751",
+        "index": 2,
+        "sourceId": null,
+        "creationDateTime": "2024-04-20T23:05:28.177Z",
+        "lastEditedDateTime": "2024-04-20T23:05:28.177Z",
+        "cells": [
+          {
+            "id": "0c5ec5d4-673b-4b0d-960f-af9d44d356d7",
+            "columnId": "d2ceeb6d-3a40-407e-87e2-d1ce5a36b14f",
+            "content": "",
+            "hasValidFrontmatter": null
+          },
+          {
+            "id": "ea876465-8540-4e8d-9416-9eb38e9509be",
+            "columnId": "3e9de1e1-51ce-4657-af33-c84fa1ab4050",
+            "content": "",
+            "hasValidFrontmatter": null
+          },
+          {
+            "id": "19d1e9aa-37f3-4c31-b288-5790e0a70472",
+            "columnId": "f3e7bf2f-77fb-46a7-8187-d22dfb32ae9b",
+            "content": "",
+            "hasValidFrontmatter": null
+          }
+        ]
+      }
+    ],
+    "filters": [],
+    "sources": [],
+    "settings": {
+      "numFrozenColumns": 1,
+      "showCalculationRow": true
+    },
+    "externalRowOrder": []
+  },
+  "pluginVersion": "8.15.12"
+}
