@@ -41,19 +41,6 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model Person {
-  id         String   @id @default(cuid())
-  name       String?
-  f_lastname String?
-  m_lastname String?
-  phone      String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  // Might or might not be a user
-  userId     String?
-  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-}
-
 enum UserType {
   USER
   PUBLISHER
@@ -73,7 +60,6 @@ model User {
   userType      UserType     @default(USER)
   accounts      Account[]
   sessions      Session[]
-  Person        Person[]
   Volunteers    Volunteers[]
 }
 
@@ -88,12 +74,13 @@ model VerificationToken {
 // Own models.
 //AKA marca
 model Brand {
-  id        String    @id @default(cuid())
+  id        String      @id @default(cuid())
   name      String
   image     String? //Might have a logo
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  Product   Product[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Product   Inventory[]
+  Machines  Machines[]
 }
 
 //AKA Categorias
@@ -104,40 +91,34 @@ model Category {
   icon  String? //Might have an icon
 
   parentId  String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  parent    Category?  @relation("Category", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  children  Category[] @relation("Category")
-  Product   Product[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  parent    Category?   @relation("Category", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  children  Category[]  @relation("Category")
+  Inventory Inventory[]
 }
 
-enum ProductAvailability {
-  //A pedido
-  ON_REQUEST
-  //Disponible
+enum InventoryStatus {
   AVAILABLE
-  //Agotado
   OUT_OF_STOCK
-  //En transito
-  IN_TRANSIT
 }
 
-//AKA productos
-model Product {
-  id                   String              @id @default(cuid())
+//AKA Inventario
+model Inventory {
+  id                   String          @id @default(cuid())
   name                 String
-  availability         ProductAvailability @default(AVAILABLE)
+  availability         InventoryStatus @default(AVAILABLE)
   principalImage       String?
-  images               Json?
-  files                Json?
+  images               Files[]         @relation(name: "InventoryImages")
+  files                Files[]         @relation(name: "InventoryFiles")
   comercialDescription String?
   comercialResume      String?
   //Tiny description of the model product
   label                String?
   //What comes in the box
   pieces               Json?
-  createdAt            DateTime            @default(now())
-  updatedAt            DateTime            @updatedAt
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
   categoryId           String
   brandId              String
 
@@ -146,10 +127,52 @@ model Product {
 }
 
 model BiometricPosts {
-  id    String     @id @default(cuid())
-  whoId String
-  date  DateTime
-  who   Volunteers @relation(fields: [whoId], references: [biometricId], onDelete: NoAction, onUpdate: NoAction)
+  id          String        @id @default(cuid())
+  whoId       String
+  date        DateTime
+  who         Volunteers    @relation(fields: [whoId], references: [biometric_id], onDelete: NoAction, onUpdate: NoAction)
+  WeatherLogs WeatherLogs[]
+}
+
+//check https://www.weatherapi.com/docs/
+model AirQualityWeather {
+  id             String @id @default(cuid())
+  weather_log_id String
+
+  carbon_monoxide        Float?
+  ozone                  Float?
+  nitrogen_dioxide       Float?
+  sulfur_dioxide         Float?
+  particulate_matter_10  Float?
+  particulate_matter_25  Float?
+  particulate_matter_100 Float?
+  ///   	US - EPA standard.
+  /// 1 means Good
+  /// 2 means Moderate
+  /// 3 means Unhealthy for sensitive group
+  /// 4 means Unhealthy
+  /// 5 means Very Unhealthy
+  /// 6 means Hazardous
+  us_epa_index           Int?
+  gb_defra_index         Int?
+
+  WeatherLogs WeatherLogs @relation(fields: [weather_log_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model WeatherLogs {
+  id                String              @id @default(cuid())
+  biometric_post_id String
+  temperature_c     Float
+  wind_dir          String
+  humidity          Float
+  precipitation_mm  Float
+  cloud             Int
+  wind_speed_kmh    Float
+  pressure          Float
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  BiometricPost     BiometricPosts      @relation(fields: [biometric_post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  AirQualityWeather AirQualityWeather[]
 }
 
 model Skills {
@@ -158,34 +181,228 @@ model Skills {
   volunteers Volunteers[]
 }
 
+///Where they came from? univerisity, company, etc
 model Procedence {
-  id         String       @id @default(cuid())
-  name       String
+  id   String @id @default(cuid())
+  name String
+
   volunteers Volunteers[]
 }
 
 model Genders {
-  id         String       @id @default(cuid())
-  name       String
-  volunteers Volunteers[]
+  id      String    @id @default(cuid())
+  name    String
+  Persons Persons[]
 }
 
 model Volunteers {
-  id             String           @id @default(cuid())
-  name           String
-  lastname       String?
-  emails         Json?
-  biometricId    String?          @unique
-  phones         Json?
-  userId         String?
-  user           User?            @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  skills         Skills[]
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  biometricPosts BiometricPosts[]
-  procedence     Procedence[]
-  birthdate      DateTime?
-  gender         Genders?         @relation(fields: [genderId], references: [id])
-  genderId       String?
-  image          String?
+  id                  String                @id @default(cuid())
+  ///Recomended to use the CI of the person
+  biometric_id        String?               @unique
+  user_id             String?
+  user                User?                 @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  skills              Skills[]
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  biometricPosts      BiometricPosts[]
+  procedence          Procedence[]
+  avatar              String?
+  projects            Projects[]
+  ProjectTasks        ProjectTasks[]
+  MicroTasks          MicroTasks[]
+  ProjectTaskComments ProjectTaskComments[]
+  TrackingDates       TrackingDates[]
+  MachineMaintenance  MachineMaintenance[]
+}
+
+model Persons {
+  id        String          @id @default(cuid())
+  name      String
+  lastaname String?
+  ci        String?
+  emails    EmailsPersons[]
+  phones    PhonesPersons[]
+  birthdate DateTime?
+  gender_id String
+  gender    Genders?        @relation(fields: [gender_id], references: [id])
+  Images    Files[]
+  Provider  Provider[]
+}
+
+model Files {
+  id              String         @id @default(cuid())
+  key             String
+  metadata        Json?
+  PersonsFiles    Persons[]
+  ProjectsFiles   Projects[]     @relation(name: "ProjectFiles")
+  ProjectImages   Projects[]     @relation(name: "ProjectImages")
+  InventoryFiles  Inventory[]    @relation(name: "InventoryFiles")
+  InventoryImages Inventory[]    @relation(name: "InventoryImages")
+  ProjectTasks    ProjectTasks[]
+  MicroTasks      MicroTasks[]
+  MachinesFiles   Machines[]
+}
+
+model PhonesPersons {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  person_id String
+  Person    Persons? @relation(fields: [person_id], references: [id])
+}
+
+model EmailsPersons {
+  id        String   @id @default(cuid())
+  mail      String   @unique
+  person_id String
+  Person    Persons? @relation(fields: [person_id], references: [id])
+}
+
+model Provider {
+  id        String   @id @default(cuid())
+  name      String
+  person_id String?
+  Person    Persons? @relation(fields: [person_id], references: [id])
+}
+
+enum Status {
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+}
+
+model Projects {
+  id            String          @id @default(cuid())
+  name          String
+  files         Files[]         @relation(name: "ProjectFiles")
+  images        Files[]         @relation(name: "ProjectImages")
+  status        Status          @default(IN_PROGRESS)
+  workers       Volunteers[]
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  ProjectsDates ProjectsDates[]
+}
+
+model ProjectsDates {
+  id            String        @id @default(cuid())
+  project_id    String
+  project       Projects      @relation(fields: [project_id], references: [id])
+  tracking_id   String
+  tracking_date TrackingDates @relation(fields: [tracking_id], references: [id])
+  active        Boolean       @default(true)
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+}
+
+model TrackingDates {
+  id                 String              @id @default(cuid())
+  start_date         DateTime
+  end_date           DateTime
+  volunteer_id       String
+  created_by         Volunteers          @relation(fields: [volunteer_id], references: [id])
+  project_dates      ProjectsDates[]
+  project_task_dates ProjectsTaskDates[]
+  MicroTaskDates     MicroTaskDates[]
+}
+
+model ProjectTasks {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  files       Files[]
+  assigned_to Volunteers[]
+
+  priority Int    @default(0) @db.SmallInt
+  status   Status @default(IN_PROGRESS)
+
+  comments           ProjectTaskComments[]
+  project_task_dates ProjectsTaskDates[]
+}
+
+model ProjectsTaskDates {
+  id              String        @id @default(cuid())
+  project_task_id String
+  project_task    ProjectTasks  @relation(fields: [project_task_id], references: [id])
+  tracking_id     String
+  tracking_date   TrackingDates @relation(fields: [tracking_id], references: [id])
+  active          Boolean       @default(true)
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+}
+
+model ProjectTaskComments {
+  id              String        @id @default(cuid())
+  volunteer_id    String
+  volunteer       Volunteers    @relation(fields: [volunteer_id], references: [id])
+  said_at         DateTime
+  said            String        @db.Text
+  project_task    ProjectTasks? @relation(fields: [project_task_id], references: [id])
+  project_task_id String?
+}
+
+model MicroTasks {
+  id    String  @id @default(cuid())
+  name  String
+  files Files[]
+
+  is_completed            Boolean                  @default(false)
+  assigned_to             Volunteers[]
+  description             String?
+  task_comment            String?
+  micro_task_dates        MicroTaskDates[]
+  machine_usage_microtask MachineUsageMicroTasks[]
+}
+
+model MicroTaskDates {
+  id            String        @id @default(cuid())
+  micro_task_id String
+  micro_task    MicroTasks    @relation(fields: [micro_task_id], references: [id])
+  tracking_id   String
+  tracking_date TrackingDates @relation(fields: [tracking_id], references: [id])
+  active        Boolean       @default(true)
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+}
+
+enum MachineStatus {
+  IN_USE
+  NOT_IN_USE
+  IN_REPAIR //When it was damaged
+  IN_MAINTENANCE //Scheduled
+}
+
+model MachineUsageMicroTasks {
+  id            String     @id @default(cuid())
+  machine_id    String
+  machine       Machines   @relation(fields: [machine_id], references: [id])
+  micro_task    MicroTasks @relation(fields: [micro_task_id], references: [id])
+  micro_task_id String
+}
+
+///Maquinas usables del fablab, puede ser una impresora 3d, puede ser otra maquina.
+model Machines {
+  id                      String                   @id @default(cuid())
+  name                    String
+  description             String?
+  status                  MachineStatus            @default(NOT_IN_USE)
+  image                   String?
+  ///Manuales, cosas asi
+  files                   Files[]
+  brand                   Brand                    @relation(fields: [brand_id], references: [id])
+  brand_id                String
+  machine_usage_microtask MachineUsageMicroTasks[]
+  machine_mainteneance    MachineMaintenance[]
+}
+
+model MachineMaintenance {
+  id            String        @id @default(cuid())
+  machine_id    String
+  machine       Machines      @relation(fields: [machine_id], references: [id])
+  description   String
+  status        MachineStatus
+  start_date    DateTime
+  end_date      DateTime
+  created_by_id String
+  created_by    Volunteers    @relation(fields: [created_by_id], references: [id])
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
 }

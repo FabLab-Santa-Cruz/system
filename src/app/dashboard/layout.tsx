@@ -30,13 +30,13 @@ export default function DashboardLayout({
       getItem("Marcas", "brands"),
       getItem("Categorias", "categories"),
       getItem("Lista de productos", "list"),
-      getItem(
-        "Item 2",
-        "g2",
-        null,
-        [getItem("Option 3", "3"), getItem("Option 4", "4")],
-        "group",
-      ),
+      //   getItem(
+      //     "Item 2",
+      //     "g2",
+      //     null,
+      //     [getItem("Option 3", "3"), getItem("Option 4", "4")],
+      //     "group",
+      //   ),
     ]),
     getItem("Voluntarios", "volunteers", <MdPerson />, [
       getItem("Lista", "list"),
@@ -57,6 +57,7 @@ export default function DashboardLayout({
     }
     router.push(`/dashboard/${e.keyPath.reverse().join("/")}`);
   };
+  const openKeys = ["inventory", "volunteers"];
   // This is just the sidebar
   return (
     <div className="tw-flex">
@@ -66,7 +67,7 @@ export default function DashboardLayout({
           className="tw-w-40"
           items={items}
           mode="inline"
-          defaultOpenKeys={["inventory"]}
+          defaultOpenKeys={openKeys}
         />
       </div>
       {children}
