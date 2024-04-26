@@ -25,6 +25,7 @@ export const env = createEnv({
     MINIO_ENDPOINT: z.string(),
     MINIO_SECRET: z.string(),
     MINIO_KEY: z.string(),
+    BIO_KEY: z.string(),
     // DISCORD_CLIENT_ID: z.string(),
     // DISCORD_CLIENT_SECRET: z.string(),
   },
@@ -44,6 +45,7 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
+    BIO_KEY: process.env.BIO_KEY,
     NEXT_PUBLIC_STORAGE_PATH: process.env.NEXT_PUBLIC_STORAGE_PATH,
     MINIO_ENDPOINT: process.env.MINIO_ENDPOINT,
     MINIO_SECRET: process.env.MINIO_SECRET,
