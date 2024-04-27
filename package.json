@@ -1,6 +1,10 @@
 {
 	"name": "web2",
 	"trustedDependencies": [
+		"@biomejs/biome",
+		"@prisma/client",
+		"@prisma/engines",
+		"next",
 		"prisma",
 		"react-icons",
 		"server-only",
