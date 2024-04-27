@@ -42,8 +42,7 @@ model Session {
 }
 
 enum UserType {
-  USER
-  PUBLISHER
+  VOLUNTEER
   ADMIN
 }
 
@@ -57,10 +56,10 @@ model User {
   image         String?
   createdAt     DateTime     @default(now())
   isActive      Boolean      @default(true)
-  userType      UserType     @default(USER)
+  userType      UserType     @default(VOLUNTEER)
   accounts      Account[]
   sessions      Session[]
-  Volunteers    Volunteers[]
+  volunteers    Volunteers[]
 }
 
 model VerificationToken {
@@ -79,8 +78,8 @@ model Brand {
   image     String? //Might have a logo
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
-  Product   Inventory[]
-  Machines  Machines[]
+  inventory Inventory[]
+  machines  Machines[]
 }
 
 //AKA Categorias
@@ -95,7 +94,7 @@ model Category {
   updatedAt DateTime    @updatedAt
   parent    Category?   @relation("Category", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   children  Category[]  @relation("Category")
-  Inventory Inventory[]
+  inventory Inventory[]
 }
 
 enum InventoryStatus {
@@ -128,9 +127,9 @@ model Inventory {
 
 model BiometricPosts {
   id          String        @id @default(cuid())
-  whoId       String
+  who_id      String
   date        DateTime
-  who         Volunteers    @relation(fields: [whoId], references: [biometric_id], onDelete: NoAction, onUpdate: NoAction)
+  who         Volunteers    @relation(fields: [who_id], references: [biometric_id], onDelete: NoAction, onUpdate: NoAction)
   WeatherLogs WeatherLogs[]
 }
 
@@ -156,23 +155,23 @@ model AirQualityWeather {
   us_epa_index           Int?
   gb_defra_index         Int?
 
-  WeatherLogs WeatherLogs @relation(fields: [weather_log_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  weather_logs WeatherLogs @relation(fields: [weather_log_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model WeatherLogs {
-  id                String              @id @default(cuid())
-  biometric_post_id String
-  temperature_c     Float
-  wind_dir          String
-  humidity          Float
-  precipitation_mm  Float
-  cloud             Int
-  wind_speed_kmh    Float
-  pressure          Float
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  BiometricPost     BiometricPosts      @relation(fields: [biometric_post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  AirQualityWeather AirQualityWeather[]
+  id                  String              @id @default(cuid())
+  biometric_post_id   String
+  temperature_c       Float
+  wind_dir            String
+  humidity            Float
+  precipitation_mm    Float
+  cloud               Int
+  wind_speed_kmh      Float
+  pressure            Float
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  biometric_post      BiometricPosts      @relation(fields: [biometric_post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  air_quality_weather AirQualityWeather[]
 }
 
 model Skills {
@@ -192,55 +191,59 @@ model Procedence {
 model Genders {
   id      String    @id @default(cuid())
   name    String
-  Persons Persons[]
+  persons Persons[]
 }
 
 model Volunteers {
-  id                  String                @id @default(cuid())
+  id           String  @id @default(cuid())
   ///Recomended to use the CI of the person
-  biometric_id        String?               @unique
-  user_id             String?
-  user                User?                 @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  skills              Skills[]
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
-  biometricPosts      BiometricPosts[]
-  procedence          Procedence[]
-  avatar              String?
-  projects            Projects[]
-  ProjectTasks        ProjectTasks[]
-  MicroTasks          MicroTasks[]
-  ProjectTaskComments ProjectTaskComments[]
-  TrackingDates       TrackingDates[]
-  MachineMaintenance  MachineMaintenance[]
+  biometric_id String? @unique
+  user_id      String?
+  user         User?   @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
+
+  person_id              String
+  person                 Persons?              @relation(fields: [person_id], references: [id], onUpdate: NoAction)
+  skills                 Skills[]
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  biometricPosts         BiometricPosts[]
+  procedence             Procedence[]
+  avatar                 String?
+  projects               Projects[]
+  project_tasks          ProjectTasks[]
+  micro_tasks            MicroTasks[]
+  project_tasks_comments ProjectTaskComments[]
+  tracking_dates         TrackingDates[]
+  machine_mainteneance   MachineMaintenance[]
 }
 
 model Persons {
-  id        String          @id @default(cuid())
-  name      String
-  lastaname String?
-  ci        String?
-  emails    EmailsPersons[]
-  phones    PhonesPersons[]
-  birthdate DateTime?
-  gender_id String
-  gender    Genders?        @relation(fields: [gender_id], references: [id])
-  Images    Files[]
-  Provider  Provider[]
+  id         String          @id @default(cuid())
+  name       String
+  lastaname  String?
+  ci         String?
+  emails     EmailsPersons[]
+  phones     PhonesPersons[]
+  birthdate  DateTime?
+  gender_id  String
+  gender     Genders?        @relation(fields: [gender_id], references: [id])
+  images     Files[]
+  providers  Provider[]
+  volunteers Volunteers[]
 }
 
 model Files {
-  id              String         @id @default(cuid())
-  key             String
-  metadata        Json?
-  PersonsFiles    Persons[]
-  ProjectsFiles   Projects[]     @relation(name: "ProjectFiles")
-  ProjectImages   Projects[]     @relation(name: "ProjectImages")
-  InventoryFiles  Inventory[]    @relation(name: "InventoryFiles")
-  InventoryImages Inventory[]    @relation(name: "InventoryImages")
-  ProjectTasks    ProjectTasks[]
-  MicroTasks      MicroTasks[]
-  MachinesFiles   Machines[]
+  id               String         @id @default(cuid())
+  key              String
+  metadata         Json?
+  persons_files    Persons[]
+  projects_files   Projects[]     @relation(name: "ProjectFiles")
+  projects_images  Projects[]     @relation(name: "ProjectImages")
+  inventory_files  Inventory[]    @relation(name: "InventoryFiles")
+  inventory_images Inventory[]    @relation(name: "InventoryImages")
+  project_tasks    ProjectTasks[]
+  micro_tasks      MicroTasks[]
+  machine_files    Machines[]
 }
 
 model PhonesPersons {
@@ -261,7 +264,7 @@ model Provider {
   id        String   @id @default(cuid())
   name      String
   person_id String?
-  Person    Persons? @relation(fields: [person_id], references: [id])
+  person    Persons? @relation(fields: [person_id], references: [id])
 }
 
 enum Status {
@@ -279,7 +282,7 @@ model Projects {
   workers       Volunteers[]
   created_at    DateTime        @default(now())
   updated_at    DateTime        @updatedAt
-  ProjectsDates ProjectsDates[]
+  project_dates ProjectsDates[]
 }
 
 model ProjectsDates {
@@ -301,7 +304,7 @@ model TrackingDates {
   created_by         Volunteers          @relation(fields: [volunteer_id], references: [id])
   project_dates      ProjectsDates[]
   project_task_dates ProjectsTaskDates[]
-  MicroTaskDates     MicroTaskDates[]
+  micro_task_dates   MicroTaskDates[]
 }
 
 model ProjectTasks {

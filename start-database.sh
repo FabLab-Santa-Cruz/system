@@ -22,7 +22,7 @@ if [ "$(docker ps -q -f name=$DB_CONTAINER_NAME)" ]; then
 fi
 
 if [ "$(docker ps -q -a -f name=$DB_CONTAINER_NAME)" ]; then
-  docker start "$DB_CONTAINER_NAME"
+  docker start "$DB_CONTAINER_NAME"-vf "pad=ceil(iw/2)*2:ceil(ih/2)*2"
   echo "Existing database container '$DB_CONTAINER_NAME' started"
   exit 0
 fi

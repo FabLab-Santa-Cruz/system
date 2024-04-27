@@ -47,7 +47,7 @@ export async function POST(req: Request) {
   const mark = await db.biometricPosts.create({
     data: {
       date: infer.date,
-      whoId: infer.whoId,
+      who_id: infer.whoId,
     },
   });
   return new Response(JSON.stringify(mark));
