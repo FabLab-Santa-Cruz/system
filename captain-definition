@@ -1,18 +1,17 @@
 {
   "schemaVersion": 2,
   "dockerfileLines": [
-    "FROM node:latest",
+    "FROM oven/bun:1",
     "WORKDIR /usr/src/app",
     "COPY prisma ./",
     "COPY ./package*.json ./",
     "ARG DATABASE_URL",
     "ARG NEXTAUTH_SECRET",
     "ARG NEXTAUTH_URL",
-    "RUN npm install yarn",
-    "RUN yarn install",
+    "RUN bun install",
     "COPY ./ ./",
-    "RUN yarn build",
+    "RUN bun build",
     "EXPOSE 80",
-    "CMD [ \"npm\", \"run\"  , \"start\"]"
+    "CMD [ \"bun\", \"run\"  , \"start\"]"
   ]
 }

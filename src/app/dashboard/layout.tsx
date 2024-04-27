@@ -33,11 +33,11 @@ export default function DashboardLayout({
 				[
 					getItem("Marcas", "brands"),
 					getItem("Categorias", "categories"),
-					getItem("Lista de productos", "list"),
+					getItem("Lista", "inventory_list"),
 				],
 			),
 			getItem("Voluntarios", "volunteers", <MdPerson />, [
-				getItem("Lista", "list"),
+				getItem("Lista", "volunteers-list"),
 			]),
 			// Logout
 			getItem("Logout", "logout"),
