@@ -8,7 +8,6 @@
     "ARG DATABASE_URL",
     "ARG NEXTAUTH_SECRET",
     "ARG NEXTAUTH_URL",
-    "RUN bun pm trust prisma",
     "RUN bun install",
     "COPY ./ ./",
     "RUN bun build",
