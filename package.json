@@ -1,6 +1,12 @@
 {
 	"name": "web2",
-	"trustedDependencies": ["prisma"],
+	"trustedDependencies": [
+		"prisma",
+		"react-icons",
+		"server-only",
+		"sharp",
+		"superjson"
+	],
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
