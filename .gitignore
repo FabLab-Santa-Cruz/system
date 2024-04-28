@@ -41,3 +41,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 .turbo
+/prisma/zod
+pg_schema.sql
