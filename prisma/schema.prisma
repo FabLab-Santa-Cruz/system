@@ -143,6 +143,8 @@ model Inventory {
   categoryId           String
   brandId              String
 
+  providers Provider[]
+
   category Category @relation(fields: [categoryId], references: [id])
   brand    Brand    @relation(fields: [brandId], references: [id])
 }
@@ -287,6 +289,7 @@ model Provider {
   name      String
   person_id String?
   person    Persons? @relation(fields: [person_id], references: [id])
+  inventory Inventory[]
 }
 
 enum Status {
