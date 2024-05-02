@@ -1,6 +1,11 @@
 "use client";
 import { Menu, type MenuProps } from "antd";
-import { MdOutlineProductionQuantityLimits, MdPerson } from "react-icons/md";
+import {
+	MdEngineering,
+	MdOutlineProductionQuantityLimits,
+	MdPerson,
+	MdPerson2,
+} from "react-icons/md";
 import { useRouter } from "next/navigation";
 type MenuItem = Required<MenuProps>["items"][number];
 function getItem(
@@ -36,10 +41,8 @@ export default function DashboardLayout({
 					getItem("Lista", "inventory_list"),
 				],
 			),
-			getItem("Voluntarios", "volunteers", <MdPerson />, [
-				getItem("Lista", "volunteers-list"),
-			]),
-			// Logout
+			getItem("Voluntarios", "volunteers-list", <MdEngineering />),
+			getItem("Personas", "persons-list", <MdPerson />),
 			getItem("Logout", "logout"),
 		];
   const router = useRouter();

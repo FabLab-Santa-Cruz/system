@@ -1,9 +1,11 @@
 import "~/styles/globals.css";
 
 import { Inter } from "next/font/google";
-
+import { ConfigProvider } from "antd";
 import { TRPCReactProvider } from "~/trpc/react";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
+
+import esEs from "antd/es/locale/es_ES";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -15,18 +17,21 @@ export const metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`font-sans ${inter.variable}`}>
-        <TRPCReactProvider>
-          <AntdRegistry>{children}</AntdRegistry>
-        </TRPCReactProvider>
-      </body>
-    </html>
-  );
+			<html lang="en">
+				<body className={`font-sans ${inter.variable}`}>
+					<TRPCReactProvider>
+						<AntdRegistry>
+							<ConfigProvider locale={esEs}>{children}</ConfigProvider>?
+						</AntdRegistry>
+					</TRPCReactProvider>
+				</body>
+			</html>
+		);
 }

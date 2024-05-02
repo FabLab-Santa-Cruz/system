@@ -20,12 +20,13 @@ export async function middleware(request: NextRequest) {
   /**
    * If logged in but it's not an admin
    */
-  if (currentUser && request.nextUrl.pathname.startsWith("/dashboard") && currentUser.userType !== "ADMIN") {
-    console.log(currentUser.userType);
-    return Response.redirect(new URL("/", request.url));
-  }
+  // if (currentUser && request.nextUrl.pathname.startsWith("/dashboard") && currentUser.userType !== "ADMIN") {
+  //   console.log(currentUser.userType);
+  //   return Response.redirect(new URL("/", request.url));
+  // }
   /**
    * If is not even logged in...
+   * 
    */
   if (!currentUser && request.nextUrl.pathname.startsWith("/dashboard")) {
     return Response.redirect(new URL("/", request.url));

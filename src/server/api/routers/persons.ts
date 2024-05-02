@@ -4,7 +4,7 @@ import {
   protectedProcedure
 } from "~/server/api/trpc";
 
-export const volunteersRouter = createTRPCRouter({
+export const personsRouter = createTRPCRouter({
   // upsert: protectedProcedure
   //   .input(z.object({
   //     id: z.string().optional(),
@@ -64,24 +64,18 @@ export const volunteersRouter = createTRPCRouter({
   //     })
   //   }),
   list: protectedProcedure.query(({ ctx }) => {
-    return ctx.db.volunteers.findMany({
+    return ctx.db.persons.findMany({
       include: {
-        skills: true,
-        procedence: true,
-        user: true,
-        biometric_posts: true,
-        person: {
-          include: {
-            images: true,
-            gender: true,
-            emails: true,
-            phones: true
-          }
-        }/*  */
-
+        gender: true,
+        emails: true,
+        phones: true,
+        images: true,
       }
     })    
   }),
+  listGenders: protectedProcedure.query(({ ctx }) => {
+    return ctx.db.genders.findMany()
+  })
   // delete: protectedProcedure
   //   .input(z.object({ id: z.string() }))
   //   .mutation(async ({ ctx, input }) => {

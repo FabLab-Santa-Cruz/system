@@ -4,26 +4,27 @@
 generator client {
   provider = "prisma-client-js"
 }
-generator zod {
-  provider                 = "zod-prisma"
-  output                   = "./zod" // (default) the directory where generated zod schemas will be saved
 
-  relationModel            = true // (default) Create and export both plain and related models.
+generator zod {
+  provider = "zod-prisma"
+  output   = "./zod" // (default) the directory where generated zod schemas will be saved
+
+  relationModel = true // (default) Create and export both plain and related models.
   // relationModel         = "default" // Do not export model without relations.
   // relationModel         = false // Do not generate related model
 
-  modelCase                = "PascalCase" // (default) Output models using pascal case (ex. UserModel, PostModel)
+  modelCase = "PascalCase" // (default) Output models using pascal case (ex. UserModel, PostModel)
   // modelCase             = "camelCase" // Output models using camel case (ex. userModel, postModel)
 
-  modelSuffix              = "Model" // (default) Suffix to apply to your prisma models when naming Zod schemas
+  modelSuffix = "Model" // (default) Suffix to apply to your prisma models when naming Zod schemas
 
   // useDecimalJs          = false // (default) represent the prisma Decimal type using as a JS number
-  useDecimalJs             = true // represent the prisma Decimal type using Decimal.js (as Prisma does)
+  useDecimalJs = true // represent the prisma Decimal type using Decimal.js (as Prisma does)
 
   //imports                  = null // (default) will import the referenced file in generated schemas to be used via imports.someExportedVariable
 
   // https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-by-null-values
-  prismaJsonNullability    = true // (default) uses prisma's scheme for JSON field nullability
+  prismaJsonNullability = true // (default) uses prisma's scheme for JSON field nullability
   // prismaJsonNullability = false // allows null assignment to optional JSON fields
 }
 
@@ -199,7 +200,7 @@ model WeatherLogs {
 }
 
 model Skills {
-  id         Int       @id @default(autoincrement())
+  id         Int          @id @default(autoincrement())
   name       String
   volunteers Volunteers[]
 }
@@ -219,18 +220,17 @@ model Genders {
 }
 
 model Volunteers {
-  id           String  @id @default(cuid())
+  id                     String                @id @default(cuid())
   ///Recomended to use the CI of the person
-  biometric_id String? @unique
-  user_id      String?
-  user         User?   @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
-
+  biometric_id           String?               @unique
+  user_id                String?
+  user                   User?                 @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
   person_id              String
   person                 Persons?              @relation(fields: [person_id], references: [id], onUpdate: NoAction)
   skills                 Skills[]
-  created_at              DateTime              @default(now())
-  updated_at              DateTime              @updatedAt
-  biometric_posts         BiometricPosts[]
+  created_at             DateTime              @default(now())
+  updated_at             DateTime              @updatedAt
+  biometric_posts        BiometricPosts[]
   procedence             Procedence[]
   avatar                 String?
   projects               Projects[]
@@ -244,7 +244,8 @@ model Volunteers {
 model Persons {
   id         String          @id @default(cuid())
   name       String
-  lastaname  String?
+  f_lastname  String? ///Father lastname
+  m_lastname  String? ///Mother lastname
   ci         String?
   emails     EmailsPersons[]
   phones     PhonesPersons[]
@@ -254,6 +255,8 @@ model Persons {
   images     Files[]
   providers  Provider[]
   volunteers Volunteers[]
+  created_at DateTime        @default(now())
+  updated_at DateTime        @updatedAt
 }
 
 model Files {
@@ -285,10 +288,10 @@ model EmailsPersons {
 }
 
 model Provider {
-  id        String   @id @default(cuid())
+  id        String      @id @default(cuid())
   name      String
   person_id String?
-  person    Persons? @relation(fields: [person_id], references: [id])
+  person    Persons?    @relation(fields: [person_id], references: [id])
   inventory Inventory[]
 }
 
