@@ -38,7 +38,6 @@ export const UploadWithCrop = ({
 			key: string;
 		}[]
 	>(value ?? []);
-
 	const onPreview = async (file: UploadFile) => {
 		let src = file.url!;
 		if (!src) {
@@ -54,25 +53,12 @@ export const UploadWithCrop = ({
 		imgWindow?.document.write(image.outerHTML);
 	};
 	const uapi = api.upload.getUrl.useMutation();
-	// useEffect(() => {
-	// 	if (value && value.length > 0) {
-	// 		setFileList(
-	// 			value.map((v) => ({
-	// 				uid: v.id || v.key,
-	// 				name: v.key,
-	// 				status: "done",
-	// 				url: WithUrl(v.key),
-	// 			})),
-	// 		);
-	// 	}
-	// }, [value]);
-
-	useEffect(() => {
-		if (onChange) onChange(uploadedFiles);
-	}, [onChange, uploadedFiles]);
 	const handleOnChange: UploadProps["onChange"] = (props) => {
 		setFileList(props.fileList);
 	};
+  useEffect(() => {
+			onChange?.(uploadedFiles);
+		}, [uploadedFiles]);
 	return (
 		<ImgCrop rotationSlider>
 			<Upload
@@ -83,12 +69,8 @@ export const UploadWithCrop = ({
 				onChange={handleOnChange}
 				maxCount={maxFiles}
 				accept="image/*"
-				// action={(file) => {
-				//   return uapi.mutateAsync({ objectName: file.name });
-				// }}
 				customRequest={async (options) => {
 					const { onSuccess, onError, onProgress } = options;
-
 					//Create a post request which upload with form data
 					const fileOptions = options.file as unknown as UploadFile;
 					const data = await uapi.mutateAsync({
@@ -112,14 +94,14 @@ export const UploadWithCrop = ({
 					};
 					try {
 						await axios.post(data.postURL, formData, config);
-						setUploadedFiles([
+						const finalList = [
 							...uploadedFiles,
 							{
 								id: fileOptions.uid,
 								key: `${data.formData.key}`,
 							},
-						]);
-						// Search by uuid and add the key
+						];
+						setUploadedFiles(finalList);
 
 						if (onSuccess) onSuccess(data.formData.Key);
 					} catch (error) {

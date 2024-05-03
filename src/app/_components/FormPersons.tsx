@@ -38,38 +38,34 @@ export default function FormPersons({
 	person?: Person | null;
 }) {
 	const [form] = Form.useForm();
-	useEffect(() => {
-		if (person) {
-			form.setFieldsValue({
-				name: person.name,
-				f_lastname: person.f_lastname,
-				m_lastname: person.m_lastname,
-				ci: person.ci,
-				gender_id: person.gender_id,
-				emails: person.emails.map((e) => ({
+	const genders = api.person.listGenders.useQuery();
+	return (
+		<Form
+			form={form}
+			labelWrap
+			labelCol={{ span: 6 }}
+			onFinish={onFinish}
+			initialValues={{
+				name: person?.name,
+				f_lastname: person?.f_lastname,
+				m_lastname: person?.m_lastname,
+				ci: person?.ci,
+				gender_id: person?.gender_id,
+				emails: person?.emails.map((e) => ({
 					id: e.id,
 					property: e.mail,
 				})),
-				phones: person.phones.map((p) => ({
+				phones: person?.phones.map((p) => ({
 					id: p.id,
 					property: p.phone,
 				})),
-				birthdate: person.birthdate ? dayjs(person.birthdate) : undefined,
-				images: person.images.map((image) => ({
+				birthdate: person?.birthdate ? dayjs(person.birthdate) : undefined,
+				images: person?.images.map((image) => ({
 					id: image.id,
 					key: image.key,
 				})),
-			});
-		}
-	}, [person]);
-
-	const genders = api.person.listGenders.useQuery();
-	const imagenes = Form.useWatch("images", form);
-	useEffect(() => {
-		console.log(imagenes, "status");
-	}, [imagenes]);
-	return (
-		<Form form={form} labelWrap labelCol={{ span: 6 }} onFinish={onFinish}>
+			}}
+		>
 			<Form.Item
 				name="name"
 				label="Nombre"
@@ -105,11 +101,7 @@ export default function FormPersons({
 			<Form.Item name="phones" label={"Telefonos"}>
 				<MultipleInput formName="phones" propertyTitle="Telefono" />
 			</Form.Item>
-			<Form.Item
-				name="birthdate"
-				label="Fecha de nacimiento"
-				initialValue={dayjs().subtract(18, "year")}
-			>
+			<Form.Item name="birthdate" label="Fecha de nacimiento">
 				<DatePicker className="tw-w-full" />
 			</Form.Item>
 			<Form.Item name={"images"} label={"Imagenes"}>

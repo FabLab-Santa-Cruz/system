@@ -1,5 +1,5 @@
 "use client";
-import { Button, Modal, Table, Typography } from "antd";
+import { Button, Image as AntImage, Modal, Table, Typography } from "antd";
 import { useForm } from "antd/es/form/Form";
 import { ColumnProps } from "antd/es/table";
 import dayjs from "dayjs";
@@ -10,25 +10,57 @@ import GenderCrud from "~/app/_components/GenderCrud";
 import { useGlobalContext } from "~/app/globalContext";
 import { RouterOutputs } from "~/server/api/root";
 import { api } from "~/trpc/react";
-
+import Image from "next/image";
+import { WithUrl } from "~/utils/withUrl";
+import { MdPanoramaFishEye } from "react-icons/md";
+import { EyeFilled } from "@ant-design/icons";
 type Person = RouterOutputs["person"]["list"][0];
-
-
-
 
 //=>
 export default function PersonList() {
 	const lista = api.person.list.useQuery();
-	const genders = api.person.listGenders.useQuery();
+	const [modalImages, setModalImages] = useState<Person["images"] | null>(null);
 	const [selected, setSelected] = useState<Person | null>(null);
 	const columns: ColumnProps<Person>[] = [
 		{
 			title: "Imagenes",
 			render(_, row) {
 				return (
-					<Typography.Text>
-						{row.images?.map((i) => i.key).join(", ")}
-					</Typography.Text>
+					<div
+						className="tw-flex tw-flex-wrap tw-h-[50px] tw-justify-center tw-items-center tw-relative"
+						style={{
+							cursor: row.images.length > 0 ? "pointer" : "default",
+						}}
+						onClick={() => {
+							if (row.images.length > 0) setModalImages(row.images);
+						}}
+					>
+						{row.images.length > 0 ? (
+							<>
+								<div
+									className="tw-h-[50px] tw-w-[50px] tw-absolute hover:tw-bg-gray-200 hover:tw-opacity-50 tw-justify-start
+                      tw-flex
+                      tw-items-center
+                      tw-opacity-0
+                      tw-rounded-full
+                      "
+								>
+									<div className="tw-m-auto">
+										<EyeFilled color="#000000" />
+									</div>
+								</div>
+								<Image
+									quality={20}
+									src={WithUrl(row.images[0]?.key ?? "")}
+									alt="avatar"
+									width={50}
+									height={50}
+								/>
+							</>
+						) : (
+							"N/A"
+						)}
+					</div>
 				);
 			},
 		},
@@ -125,9 +157,6 @@ export default function PersonList() {
 	];
 	const [modal, setModal] = useState(false);
 	const [form] = useForm();
-
-	const global = useGlobalContext();
-
 	const upsertPerson = api.person.upsertPerson.useMutation({
 		async onMutate() {
 			form.resetFields();
@@ -161,6 +190,31 @@ export default function PersonList() {
 	const [generosModal, setGenerosModal] = useState(false);
 	return (
 		<div className="tw-m-4 ">
+			<Modal
+				title="Imagenes"
+				open={!!modalImages}
+				onOk={() => setModalImages(null)}
+				onCancel={() => setModalImages(null)}
+				width={800}
+				footer={null}
+				destroyOnClose
+			>
+				<div className="tw-flex tw-flex-wrap">
+					<AntImage.PreviewGroup>
+						{modalImages?.map((v) => {
+							return (
+								<AntImage
+									key={v.key}
+									src={WithUrl(v.key ?? "")}
+									alt="avatar"
+									width={50}
+									height={50}
+								/>
+							);
+						})}
+					</AntImage.PreviewGroup>
+				</div>
+			</Modal>
 			<Modal
 				title={`${selected ? "Editar" : "Crear"} Persona`}
 				open={modal}
