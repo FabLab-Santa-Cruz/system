@@ -1,25 +1,20 @@
 "use client";
-import {
-	Button,
-	DatePicker,
-	Form,
-	Input,
-	Modal,
-	Select,
-	Table,
-	Tag,
-	Typography,
-} from "antd";
+import { Button, Modal, Table, Typography } from "antd";
 import { useForm } from "antd/es/form/Form";
 import { ColumnProps } from "antd/es/table";
 import dayjs from "dayjs";
 
 import { useState } from "react";
-import { UploadWithCrop } from "~/app/_components/UploadWithCrop";
+import FormPersons, { FormPersonOutput } from "~/app/_components/FormPersons";
+import GenderCrud from "~/app/_components/GenderCrud";
+import { useGlobalContext } from "~/app/globalContext";
 import { RouterOutputs } from "~/server/api/root";
 import { api } from "~/trpc/react";
 
 type Person = RouterOutputs["person"]["list"][0];
+
+
+
 
 //=>
 export default function PersonList() {
@@ -109,6 +104,12 @@ export default function PersonList() {
 			render: (_: unknown, person) => {
 				return (
 					<div>
+						{person.volunteers.length > 0 && (
+							<Button type="primary">Ver voluntario</Button>
+						)}
+						{person.providers.length > 0 && (
+							<Button type="primary">Ver proveedor</Button>
+						)}
 						<Button
 							onClick={() => {
 								setSelected(person);
@@ -124,11 +125,40 @@ export default function PersonList() {
 	];
 	const [modal, setModal] = useState(false);
 	const [form] = useForm();
-	const emails = Form.useWatch("emails", form);
-	const phones = Form.useWatch("phones", form);
-	const onFinish = (values: unknown) => {
-		console.log(values);
+
+	const global = useGlobalContext();
+
+	const upsertPerson = api.person.upsertPerson.useMutation({
+		async onMutate() {
+			form.resetFields();
+		},
+		onSuccess() {
+			lista.refetch();
+			setModal(false);
+		},
+	});
+	const onFinish = (values: FormPersonOutput) => {
+		void upsertPerson.mutateAsync({
+			id: selected?.id ?? "",
+			name: values.name,
+			f_lastname: values.f_lastname,
+			m_lastname: values.m_lastname,
+			ci: values.ci,
+			gender_id: values.gender_id,
+			emails: values.emails,
+			phones: values.phones,
+			birthdate: values.birthdate?.toISOString() ?? null,
+			images: values.images.map((v) => {
+				if (v.id?.startsWith("rc-upload")) {
+					return {
+						key: v.key,
+					};
+				}
+				return v;
+			}),
+		});
 	};
+	const [generosModal, setGenerosModal] = useState(false);
 	return (
 		<div className="tw-m-4 ">
 			<Modal
@@ -138,78 +168,21 @@ export default function PersonList() {
 				onCancel={() => setModal(false)}
 				width={800}
 				footer={null}
+				destroyOnClose
 			>
-				<Form form={form} labelWrap labelCol={{ span: 6 }} onFinish={onFinish}>
-					<Form.Item
-						name="name"
-						label="Nombre"
-						rules={[
-							{ required: true, message: "Por favor, ingrese un nombre" },
-						]}
-					>
-						<Input />
-					</Form.Item>
-					<Form.Item name="f_lastname" label="Apellido paterno">
-						<Input />
-					</Form.Item>
-					<Form.Item name="m_lastname" label="Apellido materno">
-						<Input />
-					</Form.Item>
-					<Form.Item name="ci" label="Cedula o pasaporte">
-						<Input />
-					</Form.Item>
-					<Form.Item name="gender_id" label="Genero">
-						<Select
-							options={genders.data?.map((g) => ({
-								value: g.id,
-								label: g.name,
-							}))}
-						/>
-					</Form.Item>
-					<div className="tw-ml-[25%]">
-						Separado por comas:{" "}
-						{typeof emails === "string" &&
-							emails.trim() !== "" &&
-							emails?.split(",").map((v: string) => (
-								<Tag>
-									<Typography.Text>{` ${v.trim()} `}</Typography.Text>
-								</Tag>
-							))}
-					</div>
-					<Form.Item name="emails" label={"Emails"}>
-						<Input />
-					</Form.Item>
-					{/* Lo mismo pero con telefonos */}
-					<div className="tw-ml-[25%]">
-						Separado por comas:{" "}
-						{typeof phones === "string" &&
-							phones.trim() !== "" &&
-							phones?.split(",").map((v: string) => (
-								<Tag>
-									<Typography.Text>{` ${v.trim()} `}</Typography.Text>
-								</Tag>
-							))}
-					</div>
-					<Form.Item name="phones" label={"Telefonos"}>
-						<Input />
-					</Form.Item>
-					<Form.Item name="birthdate" label="Fecha de nacimiento">
-						<DatePicker
-							defaultValue={dayjs().subtract(18, "year")}
-							className="tw-w-full"
-						/>
-					</Form.Item>
-					<Form.Item name={"images"} label={"Imagenes"}>
-						<UploadWithCrop isPublic maxFiles={Infinity} />
-					</Form.Item>
-					<div className="tw-flex">
-						<Button type="primary" className="tw-ml-auto" htmlType="submit">
-							{selected ? "Editar" : "Crear"}
-						</Button>
-					</div>
-				</Form>
+				<FormPersons onFinish={onFinish} person={selected} />
+			</Modal>
+			<Modal
+				title="Generos"
+				open={generosModal}
+				onCancel={() => setGenerosModal(false)}
+				width={400}
+				footer={null}
+			>
+				<GenderCrud />
 			</Modal>
 			<div className="tw-flex">
+				<Button onClick={() => setGenerosModal(true)}>Generos</Button>
 				<Button
 					onClick={() => {
 						setModal(true);
@@ -222,6 +195,8 @@ export default function PersonList() {
 				</Button>
 			</div>
 			<Table
+				pagination={false}
+				rowKey={(e) => e.id}
 				loading={lista.isLoading}
 				dataSource={lista.data}
 				columns={columns}

@@ -226,7 +226,7 @@ model Volunteers {
   user_id                String?
   user                   User?                 @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
   person_id              String
-  person                 Persons?              @relation(fields: [person_id], references: [id], onUpdate: NoAction)
+  person                 Persons?              @relation(fields: [person_id], references: [id], onUpdate: NoAction)  
   skills                 Skills[]
   created_at             DateTime              @default(now())
   updated_at             DateTime              @updatedAt
@@ -251,7 +251,7 @@ model Persons {
   phones     PhonesPersons[]
   birthdate  DateTime?
   gender_id  String
-  gender     Genders?        @relation(fields: [gender_id], references: [id])
+  gender     Genders        @relation(fields: [gender_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
   images     Files[]
   providers  Provider[]
   volunteers Volunteers[]

@@ -6,6 +6,8 @@ import { TRPCReactProvider } from "~/trpc/react";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 
 import esEs from "antd/es/locale/es_ES";
+import { GlobalProvider } from "./globalContext";
+
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -23,14 +25,17 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  
   return (
 			<html lang="en">
 				<body className={`font-sans ${inter.variable}`}>
-					<TRPCReactProvider>
-						<AntdRegistry>
-							<ConfigProvider locale={esEs}>{children}</ConfigProvider>?
-						</AntdRegistry>
-					</TRPCReactProvider>
+					<GlobalProvider>
+						<TRPCReactProvider>
+							<AntdRegistry>
+								<ConfigProvider locale={esEs}>{children}</ConfigProvider>?
+							</AntdRegistry>
+						</TRPCReactProvider>
+					</GlobalProvider>
 				</body>
 			</html>
 		);
