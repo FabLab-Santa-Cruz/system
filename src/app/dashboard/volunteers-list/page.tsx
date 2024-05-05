@@ -1,10 +1,10 @@
 "use client";
 import { Button, Form, Input, Modal, Table, Typography } from "antd";
-import { ColumnProps } from "antd/es/table";
+import { type ColumnProps } from "antd/es/table";
 import dayjs from "dayjs";
 
 import { useState } from "react";
-import { RouterOutputs } from "~/server/api/root";
+import { type RouterOutputs } from "~/server/api/root";
 import { api } from "~/trpc/react";
 
 type Volunteer = RouterOutputs["volunteer"]["list"][0];

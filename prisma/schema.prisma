@@ -256,7 +256,10 @@ model Persons {
   providers  Provider[]
   volunteers Volunteers[]
   created_at DateTime        @default(now())
+  deleted_at DateTime? 
   updated_at DateTime        @updatedAt
+
+  @@index([ci, deleted_at])
 }
 
 model Files {

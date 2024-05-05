@@ -1,3 +1,4 @@
+import { Input } from "antd";
 import dayjs from "dayjs";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
@@ -57,125 +58,179 @@ export const personsRouter = createTRPCRouter({
 	//       }
 	//     })
 	//   }),
-	list: protectedProcedure.query(({ ctx }) => {
-		return ctx.db.persons.findMany({
-			include: {
-				gender: true,
-				emails: true,
-				phones: true,
-				images: true,
-				providers: {
-					select: {
-						id: true,
+	delete: protectedProcedure
+		.input(z.object({ id: z.string() }))
+		.mutation(({ ctx, input }) => {
+			return ctx.db.persons.update({
+				where: {
+					id: input.id,
+				},
+				data: {
+					deleted_at: new Date(),
+				},
+			});
+		}),
+	list: protectedProcedure
+		.input(
+			z.object({
+				//Search parameters
+				search: z.string().nullish(),
+				//check if deleteds.
+				deleted: z.boolean().nullish(),
+			}),
+		)
+		.query(({ ctx, input }) => {
+			return ctx.db.persons.findMany({
+        orderBy: {
+            updated_at: "desc"
+        },
+				// where: {
+				// 	OR: [
+				// 		{
+				// 			name: {
+								
+        //         startsWith: input.search ? input.search : undefined,
+				// 			},
+				// 		},
+				// 		{
+				// 			f_lastname: {
+				// 				startsWith: input.search ? input.search : undefined,
+				// 			},
+				// 		},
+				// 		{
+				// 			m_lastname: {
+				// 				startsWith: input.search ? input.search : undefined,
+				// 			},
+				// 		},
+				// 	],
+        //   AND: input.deleted ? { deleted_at: { not: null } } : {},
+					
+				// },
+				include: {
+					gender: true,
+					emails: true,
+					phones: true,
+					images: true,
+					providers: {
+						select: {
+							id: true,
+						},
+					},
+					volunteers: {
+						select: {
+							id: true,
+						},
 					},
 				},
-				volunteers: {
-					select: {
-						id: true,
-					},
-				},
-			},
-		});
-	}),
+			});
+		}),
 	upsertPerson: protectedProcedure
-		.input(z.object({
-      id: z.string().optional(),
-      name: z.string(),
-      f_lastname: z.string().nullish(),
-      m_lastname: z.string().nullish(),
-      birthdate: z.string().datetime().nullish(),
-      ci: z.string().nullish(),
-      gender_id: z.string(),
-      images: z.array(z.object({
-        id: z.string().optional(),
-        key: z.string(),
-      })),
-      emails: z.array(z.object({
-        id: z.string().optional(),
-        property: z.string(),
-      })),
-      phones: z.array(
-        z.object({
-          id: z.string().optional(),
-          property: z.string(),
-        })
-      ),
-    }))
+		.input(
+			z.object({
+				id: z.string().optional(),
+				name: z.string(),
+				f_lastname: z.string().nullish(),
+				m_lastname: z.string().nullish(),
+				birthdate: z.string().datetime().nullish(),
+				ci: z.string().nullish(),
+				gender_id: z.string(),
+				images: z.array(
+					z.object({
+						id: z.string().optional(),
+						key: z.string(),
+					}),
+				),
+				emails: z.array(
+					z.object({
+						id: z.string().optional(),
+						property: z.string(),
+					}),
+				),
+				phones: z.array(
+					z.object({
+						id: z.string().optional(),
+						property: z.string(),
+					}),
+				),
+			}),
+		)
 		.mutation(async ({ ctx, input }) => {
 			if (input.id) {
-        return await ctx.db.persons.update({
-          where: {
-            id: input.id
-          },
-          data: {
-            name: input.name,
-            f_lastname: input.f_lastname,
-            m_lastname: input.m_lastname,
-            birthdate: input.birthdate ? dayjs(input.birthdate).toDate() : null,
-            ci: input.ci,
-            gender_id: input.gender_id,
-            images: {
-              deleteMany: {
-                id: {
-                  notIn: input.images?.map((image) => image.id).filter((id) => id) as string[]
-                }
-              },
-              upsert:
-                input.images?.map((image) => ({
-                  where: {
-                    id: image.id ?? "X"
-                  },
-                  create: {
-                    key: image.key
-                  },
-                  update: {
-                    key: image.key
-                  }
-                }))
-            },
-            emails: {
-              deleteMany: {
-                id: {
-                  notIn: input.emails?.map((email) => email.id).filter((id) => id) as string[]
-                }
-              },
-              upsert:
-                input.emails.map((email) => ({
-                  where: {
-                    id: email.id
-                  },
-                  create: {
-                    mail: email.property
-                  },
-                  update: {
-                    mail: email.property
-                  }
-                }))
-            },
-            phones: {
-              deleteMany: {
-                id: {
-                  notIn: input.phones?.map((phone) => phone.id).filter((id) => id) as string[]
-                }
-              },
-              upsert:
-                input.phones?.map((phone) => ({
-                  where: {
-                    id: phone.id
-                  },
-                  create: {
-                    phone: phone.property
-                  },
-                  update: {
-                    phone: phone.property
-                  }
-                }))
-            },
-          }
-        })
-				
+				return await ctx.db.persons.update({
+					where: {
+						id: input.id,
+					},
+					data: {
+						name: input.name,
+						f_lastname: input.f_lastname,
+						m_lastname: input.m_lastname,
+						birthdate: input.birthdate ? dayjs(input.birthdate).toDate() : null,
+						ci: input.ci,
+						gender_id: input.gender_id,
+						images: {
+							deleteMany: {
+								id: {
+									notIn: input.images
+										?.map((image) => image.id)
+										.filter((id) => id) as string[],
+								},
+							},
+							upsert: input.images?.map((image) => ({
+								where: {
+									id: image.id ?? "X",
+								},
+								create: {
+									key: image.key,
+								},
+								update: {
+									key: image.key,
+								},
+							})),
+						},
+						emails: {
+							deleteMany: {
+								id: {
+									notIn: input.emails
+										?.map((email) => email.id)
+										.filter((id) => id) as string[],
+								},
+							},
+							upsert: input.emails.map((email) => ({
+								where: {
+									id: email.id,
+								},
+								create: {
+									mail: email.property,
+								},
+								update: {
+									mail: email.property,
+								},
+							})),
+						},
+						phones: {
+							deleteMany: {
+								id: {
+									notIn: input.phones
+										?.map((phone) => phone.id)
+										.filter((id) => id) as string[],
+								},
+							},
+							upsert: input.phones?.map((phone) => ({
+								where: {
+									id: phone.id,
+								},
+								create: {
+									phone: phone.property,
+								},
+								update: {
+									phone: phone.property,
+								},
+							})),
+						},
+					},
+				});
 			}
-			return  await ctx.db.persons.create({
+			return await ctx.db.persons.create({
 				data: {
 					name: input.name,
 					f_lastname: input.f_lastname,
