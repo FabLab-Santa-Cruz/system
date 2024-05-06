@@ -1,94 +1,161 @@
-
-import {
-  createTRPCRouter,
-  protectedProcedure
-} from "~/server/api/trpc";
+import { equal } from "assert";
+import { z } from "zod";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const volunteersRouter = createTRPCRouter({
-  // upsert: protectedProcedure
-  //   .input(z.object({
-  //     id: z.string().optional(),
-  //     name: z.string(),
-  //     lastname: z.string().nullable().optional(),
-  //     emails: z.array(z.object(
-  //       {
-  //         email: z.string().email(),
-  //         comment: z.string().nullable().optional()
-  //       }
-  //     )).optional(),
-  //     biometricId: z.string().nullable().optional(),
-  //     phones: z.array(z.object(
-  //       {
-  //         phone: z.string(),
-  //         comment: z.string().nullable().optional()
-  //       }
-  //     )),
-  //     userId: z.string().nullable().optional(),
-  //     skills: z.array(z.string()).optional(),
-  //     procedences: z.array(z.string()).nullable().optional(),
-  //     birthdate: z.string().datetime().nullable().optional(),
-  //     gender: z.string().optional(),
-  //     image: z.string().optional()
-  //   }))
-  //   .mutation(async ({ ctx, input }) => {
-      
+	evaluateRequest: protectedProcedure
+		.input(
+			z.object({
+				id: z.string(), //Request id
+				status: z.enum(["PENDING", "REJECTED", "ACCEPTED", "ENDED"]),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			if (ctx.session.user.userType !== "ADMIN")
+				throw new Error("Unauthorized");
+			const request = await ctx.db.volunteerApplication.findFirst({
+				where: {
+					id: input.id,
+				},
+			});
+			if (!request) throw new Error("No se encontro esa solicitud");
+			const volunteer = await ctx.db.volunteers.findFirst({
+				where: {
+					user_id: request.user_id,
+				},
+			});
+			if (input.status === "ENDED") {
+				if (!volunteer) {
+					///No se puede dar de baja a un voluntario que no existe
+					throw new Error("No se encontro ese voluntario");
+				}
+				return await ctx.db.$transaction([
+					ctx.db.user.update({
+						where: {
+							id: request.user_id,
+						},
+						data: {
+							userType: "GUEST",
+						},
+					}),
+					ctx.db.volunteerApplication.update({
+						where: {
+							id: input.id,
+						},
+						data: {
+							status: input.status,
+							approved_by_id: ctx.session.user.id,
+						},
+					}),
+					ctx.db.volunteers.update({
+						where: {
+							id: volunteer.id,
+						},
+						data: {
+							status: "INACTIVE",
+						},
+					}),
+				]);
+			}
+			if (input.status === "ACCEPTED") {
+				//Check if volunter existd once
+				if (!volunteer) {
+					//Create volunteer
+					await ctx.db.volunteers.create({
+						data: {
+							user_id: request.user_id,
+						},
+					});
+				}
+				if (volunteer) {
+					await ctx.db.volunteers.update({
+						where: {
+							id: volunteer.id,
+						},
+						data: {
+							status: "ACTIVE",
+						},
+					});
+				}
+				return await ctx.db.$transaction([
+					ctx.db.user.update({
+						where: {
+							id: request.user_id,
+						},
+						data: {
+							userType: "VOLUNTEER",
+						},
+					}),
+					ctx.db.volunteerApplication.update({
+						where: {
+							id: input.id,
+						},
+						data: {
+							status: input.status,
+							approved_by_id: ctx.session.user.id,
+						},
+					}),
+				]);
+			}
+			return await ctx.db.volunteerApplication.update({
+				where: {
+					id: input.id,
+				},
+				data: {
+					status: "REJECTED",
+					approved_by_id: ctx.session.user.id,
+				},
+			});
+		}),
 
+	listVolunteerRequests: protectedProcedure
+		.input(z.object({ only_pending: z.boolean() }))
+		.query(async ({ ctx, input }) => {
+			return await ctx.db.volunteerApplication.findMany({
+				where: {
+					...(input.only_pending ? { status: "PENDING" } : {}),
+				},
+				include: {
+					applicant: {
+						include: {
+							person: {
+								include: {
+									gender: true,
+									phones: true,
+								},
+							},
+						},
+					},
+				},
+			});
+		}),
 
-  //     return ctx.db.volunteers.upsert({
-  //       where: {
-  //         id: input.id ?? "X"
-  //       },
-  //       create: {
-          
-
-  //         name: input.name,
-  //         lastname: input.lastname,
-  //         emails: input.emails,
-  //         biometricId: input.biometricId,
-  //         phones: input.phones,
-  //         userId: input.userId,
-  //         skills: {
-  //           connect: input.skills?.map((s) => ({ id: s }))
-  //         },
-  //         procedence: {
-  //           connect: input.procedences?.map((s) => ({ id: s }))
-  //         },
-  //         birthdate: input.birthdate,
-  //         genderId: input.gender,
-  //         image: input.image
-  //       },
-  //       update: {
-  //         name: input.name,
-  //         image: input.image
-  //       }        
-  //     })
-  //   }),
-  list: protectedProcedure.query(({ ctx }) => {
-    return ctx.db.volunteers.findMany({
-      include: {
-
-        skills: true,
-        procedence: true,
-        biometric_posts: true,
-        person: {
-          include: {
-            images: true,
-            gender: true,
-            emails: true,
-            phones: true
-          }
-        }/*  */
-
-      }
-    })    
-  }),
-  // delete: protectedProcedure
-  //   .input(z.object({ id: z.string() }))
-  //   .mutation(async ({ ctx, input }) => {
-  //     return ctx.db.volunteers.delete({
-  //       where: { id: input.id },
-  //     })
-  //   })
-
-  
+	list: protectedProcedure.query(async ({ ctx }) => {
+		return await ctx.db.volunteers.findMany({
+			include: {
+				skills: true,
+				procedence: true,
+				//biometric_posts: true,
+				user: {
+					include: {
+						person: {
+							include: {
+								images: true,
+								gender: true,
+								emails: true,
+								phones: true,
+							},
+						},
+					},
+				},
+			},
+		});
+	}),
+	// delete: protectedProcedure
+	//   .input(z.object({ id: z.string() }))
+	//   .mutation(async ({ ctx, input }) => {
+	//     return ctx.db.volunteers.delete({
+	//       where: { id: input.id },
+	//     })
+	//   })
 });

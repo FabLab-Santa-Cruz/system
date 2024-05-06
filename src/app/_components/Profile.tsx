@@ -7,6 +7,7 @@ import {
 	Button,
 	Typography,
 	Card,
+	Divider,
 } from "antd";
 import dayjs from "dayjs";
 import { api } from "~/trpc/react";
@@ -51,16 +52,21 @@ export default function ProfileDiscord() {
 			key: "1dp",
 			label: "Nombre",
 			children:
-				`${profile.data?.person?.name} ${
+				`${profile.data?.person?.name ?? ""} ${
 					profile.data?.person?.f_lastname ?? ""
 				} ${profile.data?.person?.m_lastname ?? ""}` ?? "-",
 		},
 		{
 			key: "2p",
 			label: "Fecha de nacimiento",
-			children: profile.data?.person?.birthdate
-				? dayjs(profile.data?.person?.birthdate).format("DD/MM/YYYY")
-				: "-",
+			children: profile.data?.person?.birthdate ? (
+				<div>
+					{dayjs(profile.data?.person?.birthdate).format("DD/MM/YYYY")} Edad:{" "}
+					{dayjs().diff(profile.data?.person?.birthdate, "year")} años
+				</div>
+			) : (
+				"-"
+			),
 		},
 		{
 			key: "3p",
@@ -109,7 +115,7 @@ export default function ProfileDiscord() {
 	};
 	const [modal, setModal] = useState(false);
 	return (
-		<Card>
+		<Card title="Tu perfil" size="small">
 			<Modal
 				title="Editar Perfil"
 				onCancel={() => setModal(false)}
@@ -118,11 +124,13 @@ export default function ProfileDiscord() {
 			>
 				<FormPersons onFinish={onFinish} person={profile.data?.person} />
 			</Modal>
-			<Descriptions title="Perfil de Discord" items={itemsDiscord} />
+			<Descriptions size="small" title="En Discord" items={itemsDiscord} />
+			<Divider />
 			<Descriptions
+				size="small"
 				title={
 					<div>
-						Perfil en FabLab{" "}
+						En FabLab{" "}
 						<Button size="small" onClick={() => setModal(true)}>
 							Editar Perfil
 						</Button>

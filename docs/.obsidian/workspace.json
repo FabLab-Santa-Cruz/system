@@ -41,9 +41,14 @@
             "id": "cb1b9fc398fe7355",
             "type": "leaf",
             "state": {
-              "type": "dataloom",
+              "type": "canvas",
               "state": {
-                "file": "Untitled.loom"
+                "file": "Untitled.canvas",
+                "viewState": {
+                  "x": 34.214723943587,
+                  "y": 128.30711125221202,
+                  "zoom": -0.20000000000000007
+                }
               }
             }
           }
@@ -114,7 +119,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Untitled.loom",
+                "file": "Untitled.canvas",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -131,7 +136,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Untitled.loom",
+                "file": "Untitled.canvas",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -154,7 +159,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Untitled.loom"
+                "file": "Untitled.canvas"
               }
             }
           }
@@ -173,16 +178,22 @@
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
-      "obsidian-excalidraw-plugin:Create new drawing": false,
-      "notion-like-tables:Create loom": false
+      "notion-like-tables:Create loom": false,
+      "obsidian-excalidraw-plugin:Create new drawing": false
     }
   },
   "active": "cb1b9fc398fe7355",
   "lastOpenFiles": [
-    "Tablero KanBan.canvas",
-    "Untitled.loom",
+    "images/treeproblem.jpg",
+    "Untitled.canvas",
+    "images/Estado FabLab Rango Proyecto.png",
+    "images/ERD_PGAdmin.png",
+    "images/DB-diagram.png",
+    "images/db_diagram.svg",
     "ClassDiagram.svg",
     "README.md",
+    "Tablero KanBan.canvas",
+    "Untitled.loom",
     "Excalidraw/Drawing 2024-04-20 18.58.39.excalidraw.md",
     "Excalidraw/Scripts/Downloaded/Create DrawIO file.svg",
     "Excalidraw/Scripts/Downloaded/Create DrawIO file.md",
@@ -199,8 +210,6 @@
     "doc.log",
     "doc.pdf",
     "doc.toc",
-    "images/treeproblem.jpg",
-    "treeproblem.jpg",
-    "Problem Tree Template (1).jpg"
+    "treeproblem.jpg"
   ]
 }

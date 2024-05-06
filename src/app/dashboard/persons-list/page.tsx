@@ -7,6 +7,9 @@ import {
 	Typography,
 	Tag,
 	Popconfirm,
+	Input,
+	Card,
+	Switch,
 } from "antd";
 import { useForm } from "antd/es/form/Form";
 import { type ColumnProps } from "antd/es/table";
@@ -33,11 +36,21 @@ export default function PersonList() {
 	});
 	const lista = api.person.list.useQuery(searchTerms);
 
+	const deletePerson = api.person.toggleDelete.useMutation({
+		async onSuccess() {
+			await lista.refetch();
+			void global?.messageApi.success(
+				"Persona eliminada/restaurada correctamente",
+			);
+		},
+	});
 	const [modalImages, setModalImages] = useState<Person["images"] | null>(null);
 	const [selected, setSelected] = useState<Person | null>(null);
 	const columns: ColumnProps<Person>[] = [
 		{
 			title: "Imagenes",
+			key: "img",
+			width: 100,
 			render(_, row) {
 				return (
 					<div
@@ -122,6 +135,7 @@ export default function PersonList() {
 		{
 			title: "Genero",
 			key: "gender",
+			width: 100,
 			render(_, row) {
 				return <>{row.gender?.name}</>;
 			},
@@ -129,6 +143,7 @@ export default function PersonList() {
 		{
 			title: "Fecha de nacimiento",
 			key: "birthdate",
+			width: 100,
 			render(_, row) {
 				if (!row.birthdate) return null;
 				return <>{dayjs(row.birthdate ?? "").format("DD/MM/YYYY")}</>;
@@ -137,6 +152,7 @@ export default function PersonList() {
 		{
 			title: "Creado",
 			key: "createdAt",
+			width: 100,
 			render: (_: unknown, person) => {
 				return (
 					<Typography.Text>
@@ -146,13 +162,26 @@ export default function PersonList() {
 			},
 		},
 		{
+			title: "Eliminado",
+			key: "deletedAt",
+			width: 125,
+			render: (_: unknown, person) => {
+				if (person.deleted_at === null) {
+					return <Tag color="green">Activo</Tag>;
+				}
+				return (
+					<Tag color="red">{dayjs(person.deleted_at).format("DD/MM/YYYY")}</Tag>
+				);
+			},
+		},
+		{
 			title: "Es...",
-			key: "createdAt",
-			width: 200,
+			key: "Is",
+			width: 150,
 			render: (_: unknown, person) => {
 				return (
 					<>
-						{person.volunteer ? (
+						{person.user?.volunteer ? (
 							<Tag color="green">Voluntario</Tag>
 						) : (
 							<Tag color="red">No es voluntario</Tag>
@@ -169,6 +198,7 @@ export default function PersonList() {
 		{
 			title: "Acciones",
 			key: "actions",
+			width: 155,
 			render: (_: unknown, person) => {
 				return (
 					<div className="tw-flex tw-gap-2">
@@ -182,9 +212,23 @@ export default function PersonList() {
 						>
 							Editar
 						</Button>
-						<Popconfirm title="¿Desea eliminar esta persona?">
-							<Button size="small" danger>
-								Eliminar
+						<Popconfirm
+							title={`¿Desea ${
+								person.deleted_at ? "restaurar" : "eliminar"
+							} esta persona?`}
+							onConfirm={() => {
+								void deletePerson.mutateAsync({
+									id: person.id,
+									status: person.deleted_at ? false : true,
+								});
+							}}
+						>
+							<Button
+								type="link"
+								size="small"
+								danger={person.deleted_at === null}
+							>
+								{person.deleted_at ? "Restaurar" : "Eliminar"}
 							</Button>
 						</Popconfirm>
 					</div>
@@ -231,71 +275,93 @@ export default function PersonList() {
 	const [generosModal, setGenerosModal] = useState(false);
 	return (
 		<div className="tw-m-4 tw-w-full">
-			<Modal
-				title="Imagenes"
-				open={!!modalImages}
-				onOk={() => setModalImages(null)}
-				onCancel={() => setModalImages(null)}
-				width={800}
-				footer={null}
-				destroyOnClose
-			>
-				<div className="tw-flex tw-flex-wrap">
-					<AntImage.PreviewGroup>
-						{modalImages?.map((v) => {
-							return (
-								<AntImage
-									key={v.key}
-									src={WithUrl(v.key ?? "")}
-									alt="avatar"
-									width={50}
-									height={50}
-								/>
-							);
-						})}
-					</AntImage.PreviewGroup>
-				</div>
-			</Modal>
-			<Modal
-				title={`${selected ? "Editar" : "Crear"} Persona`}
-				open={modal}
-				onOk={() => setModal(false)}
-				onCancel={() => setModal(false)}
-				width={800}
-				footer={null}
-				destroyOnClose
-			>
-				<FormPersons onFinish={onFinish} person={selected} />
-			</Modal>
-			<Modal
-				title="Generos"
-				open={generosModal}
-				onCancel={() => setGenerosModal(false)}
-				width={400}
-				footer={null}
-			>
-				<GenderCrud />
-			</Modal>
-			<div className="tw-flex">
-				<Button onClick={() => setGenerosModal(true)}>Generos</Button>
-				<Button
-					onClick={() => {
-						setModal(true);
-						setSelected(null);
-					}}
-					className="tw-ml-auto"
-					type="primary"
+			<Card>
+				<Modal
+					title="Imagenes"
+					open={!!modalImages}
+					onOk={() => setModalImages(null)}
+					onCancel={() => setModalImages(null)}
+					width={800}
+					footer={null}
+					destroyOnClose
 				>
-					Crear Persona
-				</Button>
-			</div>
-			<Table
-				pagination={false}
-				rowKey={(e) => e.id}
-				loading={lista.isLoading}
-				dataSource={lista.data}
-				columns={columns}
-			/>
+					<div className="tw-flex tw-flex-wrap">
+						<AntImage.PreviewGroup>
+							{modalImages?.map((v) => {
+								return (
+									<AntImage
+										key={v.key}
+										src={WithUrl(v.key ?? "")}
+										alt="avatar"
+										width={50}
+										height={50}
+									/>
+								);
+							})}
+						</AntImage.PreviewGroup>
+					</div>
+				</Modal>
+				<Modal
+					title={`${selected ? "Editar" : "Crear"} Persona`}
+					open={modal}
+					onOk={() => setModal(false)}
+					onCancel={() => setModal(false)}
+					width={800}
+					footer={null}
+					destroyOnClose
+				>
+					<FormPersons onFinish={onFinish} person={selected} />
+				</Modal>
+				<Modal
+					title="Generos"
+					open={generosModal}
+					onCancel={() => setGenerosModal(false)}
+					width={400}
+					footer={null}
+				>
+					<GenderCrud />
+				</Modal>
+				<div className="tw-flex">
+					<Button onClick={() => setGenerosModal(true)}>Generos</Button>
+					<Button
+						onClick={() => {
+							setModal(true);
+							setSelected(null);
+						}}
+						className="tw-ml-auto"
+						type="primary"
+					>
+						Crear Persona
+					</Button>
+				</div>
+				<div className="tw-flex tw-items-center tw-gap-2">
+					<Input.Search
+						className="tw-basis-1/3 tw-my-4"
+						placeholder="Buscar persona"
+						onChange={(value) => {
+							setSearchTerms({ ...searchTerms, search: value.target.value });
+						}}
+						value={searchTerms.search}
+					/>
+					<div>
+						<span className="tw-mr-2">Mostrar eliminados</span>
+						<Switch
+							value={searchTerms.deleted}
+							onChange={(value) => {
+								setSearchTerms({ ...searchTerms, deleted: value });
+							}}
+						/>
+					</div>
+				</div>
+				<Table
+					size="small"
+					pagination={false}
+					rowKey={(e) => e.id}
+					loading={lista.isLoading}
+					dataSource={lista.data}
+					columns={columns}
+				/>
+			</Card>
 		</div>
 	);
 }

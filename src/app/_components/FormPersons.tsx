@@ -7,22 +7,21 @@ import { type RouterOutputs } from "~/server/api/root";
 
 import MultipleInput, { type BasicMultiInput } from "./MultipleInput";
 export interface FormPersonOutput {
-		name: string;
-		f_lastname?: string;
-		m_lastname?: string;
-		ci?: string;
-		gender_id: string;
-		emails: BasicMultiInput[];
-		phones: BasicMultiInput[];
-		birthdate?: Dayjs | null;
-		images: Image[];
-	}
+	name: string;
+	f_lastname?: string;
+	m_lastname?: string;
+	ci?: string;
+	gender_id: string;
+	emails: BasicMultiInput[];
+	phones: BasicMultiInput[];
+	birthdate?: Dayjs | null;
+	images: Image[];
+}
 
 interface Image {
 	id: string;
 	key: string;
 }
-
 
 type Person = RouterOutputs["person"]["list"][0];
 

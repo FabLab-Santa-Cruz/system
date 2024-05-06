@@ -91,10 +91,15 @@ model User {
   accounts      Account[]
   sessions      Session[]
   last_login    DateTime?
-  //volunteers    Volunteers[]
-  person        Persons?
-  ///For custom auth
-  ///password      String?
+  person_id     String    @unique
+  person        Persons   @relation(fields: [person_id], references: [id])
+
+  volunteer_applications VolunteerApplication[] @relation(name: "UserVolunteerApplications")
+  volunteers_approved    VolunteerApplication[] @relation(name: "UserVolunteersApproved")
+
+  volunteer Volunteers?
+
+  @@index([userType])
 }
 
 model VerificationToken {
@@ -231,17 +236,23 @@ model Genders {
   persons Persons[]
 }
 
+enum VolunteerStatus {
+  ACTIVE
+  INACTIVE
+}
+
 model Volunteers {
   id                     String                @id @default(cuid())
   ///Recomended to use the CI of the person
   biometric_id           String?               @unique
-  // user_id                String?
-  // user                   User?                 @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  person_id              String?               @unique
-  person                 Persons?              @relation(fields: [person_id], references: [id])
+  // person_id              String?               @unique
+  // person                 Persons?              @relation(fields: [person_id], references: [id])
+  user_id                String                @unique
+  user                   User                  @relation(fields: [user_id], references: [id])
   skills                 Skills[]
   created_at             DateTime              @default(now())
   updated_at             DateTime              @updatedAt
+  status                 VolunteerStatus       @default(ACTIVE)
   biometric_posts        BiometricPosts[]
   procedence             Procedence[]
   projects               Projects[]
@@ -263,17 +274,16 @@ model Persons {
   birthdate  DateTime?
   gender_id  String?
   gender     Genders?        @relation(fields: [gender_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
-  volunteer  Volunteers?
-  images     Files[]
-  providers  Provider[]
 
-  created_at DateTime    @default(now())
+  images    Files[]
+  providers Provider[]
+
+  created_at DateTime  @default(now())
   deleted_at DateTime?
-  updated_at DateTime    @updatedAt
-  user_id    String?     @unique
-  user       User?       @relation(fields: [user_id], references: [id])
+  updated_at DateTime  @updatedAt
+  user       User?
 
-  @@index([ci, deleted_at])
+  @@index([name, f_lastname, m_lastname, ci, deleted_at])
 }
 
 model Files {
@@ -292,7 +302,7 @@ model Files {
 
 model PhonesPersons {
   id        String   @id @default(cuid())
-  phone     String   
+  phone     String
   person_id String
   Person    Persons? @relation(fields: [person_id], references: [id])
 }
@@ -317,6 +327,27 @@ enum Status {
   IN_PROGRESS
   COMPLETED
   CANCELED
+}
+
+enum ApplicationStatus {
+  PENDING
+  REJECTED
+  ACCEPTED
+  ENDED
+}
+
+model VolunteerApplication {
+  id             String            @id @default(cuid())
+  message        String            @db.Text
+  status         ApplicationStatus @default(PENDING)
+  user_id        String
+  applicant      User              @relation(fields: [user_id], references: [id], name: "UserVolunteerApplications")
+  approved_by_id String?
+  approved_by    User?             @relation(fields: [approved_by_id], references: [id], name: "UserVolunteersApproved", onDelete: SetNull, onUpdate: NoAction)
+  created_at     DateTime          @default(now())
+  updated_at     DateTime          @updatedAt
+
+  @@index([user_id, approved_by_id])
 }
 
 model Projects {

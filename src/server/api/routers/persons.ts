@@ -1,18 +1,19 @@
-import { Input } from "antd";
 import dayjs from "dayjs";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 export const personsRouter = createTRPCRouter({
-	
-	delete: protectedProcedure
-		.input(z.object({ id: z.string() }))
+	toggleDelete: protectedProcedure
+		.input(z.object({ id: z.string(), status: z.boolean() }))
 		.mutation(({ ctx, input }) => {
+			if (ctx.session.user.userType !== "ADMIN") {
+				throw new Error("Unauthorized");
+			}
 			return ctx.db.persons.update({
 				where: {
 					id: input.id,
 				},
 				data: {
-					deleted_at: new Date(),
+					deleted_at: input.status ? new Date() : null,
 				},
 			});
 		}),
@@ -20,37 +21,42 @@ export const personsRouter = createTRPCRouter({
 		.input(
 			z.object({
 				search: z.string().nullish(),
-				
 				deleted: z.boolean().nullish(),
 			}),
 		)
 		.query(({ ctx, input }) => {
+			if (ctx.session.user.userType !== "ADMIN") {
+				throw new Error("Unauthorized");
+			}
 			return ctx.db.persons.findMany({
-        orderBy: {
-            updated_at: "desc"
-        },
-				// where: {
-				// 	OR: [
-				// 		{
-				// 			name: {
-								
-        //         startsWith: input.search ? input.search : undefined,
-				// 			},
-				// 		},
-				// 		{
-				// 			f_lastname: {
-				// 				startsWith: input.search ? input.search : undefined,
-				// 			},
-				// 		},
-				// 		{
-				// 			m_lastname: {
-				// 				startsWith: input.search ? input.search : undefined,
-				// 			},
-				// 		},
-				// 	],
-        //   AND: input.deleted ? { deleted_at: { not: null } } : {},
-					
-				// },
+				orderBy: {
+					updated_at: "desc",
+				},
+				where: {
+					OR: [
+						{
+							name: {
+								contains: input.search ?? "",
+							},
+						},
+						{
+							f_lastname: {
+								contains: input.search ?? "",
+							},
+						},
+						{
+							m_lastname: {
+								contains: input.search ?? "",
+							},
+						},
+					],
+					AND:
+						input.deleted === true
+							? { deleted_at: {} }
+							: {
+									deleted_at: null,
+								},
+				},
 				include: {
 					gender: true,
 					emails: true,
@@ -61,11 +67,17 @@ export const personsRouter = createTRPCRouter({
 							id: true,
 						},
 					},
-					volunteer: {
-            select: {
-              id: true,
-            },
+					user: {
+						include: {
+							volunteer: true,
+						},
 					},
+
+					// volunteer: {
+					// 	select: {
+					// 		id: true,
+					// 	},
+					// },
 				},
 			});
 		}),
@@ -100,6 +112,9 @@ export const personsRouter = createTRPCRouter({
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
+			if (ctx.session.user.userType !== "ADMIN") {
+				throw new Error("Unauthorized");
+			}
 			if (input.id) {
 				return await ctx.db.persons.update({
 					where: {
@@ -213,6 +228,9 @@ export const personsRouter = createTRPCRouter({
 			}),
 		)
 		.mutation(({ ctx, input }) => {
+			if (ctx.session.user.userType !== "ADMIN") {
+				throw new Error("Unauthorized");
+			}
 			return ctx.db.genders.upsert({
 				where: {
 					id: input.id ?? "X",
@@ -228,39 +246,17 @@ export const personsRouter = createTRPCRouter({
 	deleteGender: protectedProcedure
 		.input(z.object({ id: z.string() }))
 		.mutation(({ ctx, input }) => {
+			if (ctx.session.user.userType !== "ADMIN") {
+				throw new Error("Unauthorized");
+			}
 			return ctx.db.genders.delete({
 				where: { id: input.id },
 			});
 		}),
 	listGenders: protectedProcedure.query(({ ctx }) => {
+		if (ctx.session.user.userType !== "ADMIN") {
+			throw new Error("Unauthorized");
+		}
 		return ctx.db.genders.findMany();
 	}),
-	// delete: protectedProcedure
-	//   .input(z.object({ id: z.string() }))
-	//   .mutation(async ({ ctx, input }) => {
-	//     return ctx.db.volunteers.delete({
-	//       where: { id: input.id },
-	//     })
-	//   })
-
-	// create: protectedProcedure
-	//   .input(z.object({ name: z.string().min(1) }))
-	//   .mutation(async ({ ctx, input }) => {
-	//     // simulate a slow db call
-	//     await new Promise((resolve) => setTimeout(resolve, 1000));
-
-	//     return ctx.db.post.create({
-	//       data: {
-	//         name: input.name,
-	//         createdBy: { connect: { id: ctx.session.user.id } },
-	//       },
-	//     });
-	//   }),
-
-	// getLatest: protectedProcedure.query(({ ctx }) => {
-	//   return ctx.db.post.findFirst({
-	//     orderBy: { createdAt: "desc" },
-	//     where: { createdBy: { id: ctx.session.user.id } },
-	//   });
-	// }),
 });

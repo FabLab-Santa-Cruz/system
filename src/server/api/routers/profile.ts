@@ -3,6 +3,35 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const profileRouter = createTRPCRouter({
+	applications: protectedProcedure.query(({ ctx }) => {
+		return ctx.db.volunteerApplication.findMany({
+			where: { user_id: ctx.session.user.id },
+			include: {
+				approved_by: {
+					include: {
+						person: true,
+					},
+				},
+			},
+		});
+	}),
+	deleteApplication: protectedProcedure
+		.input(z.object({ id: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			return await ctx.db.volunteerApplication.delete({
+				where: { id: input.id },
+			});
+		}),
+	applicateVolunteer: protectedProcedure
+		.input(z.object({ why: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			return await ctx.db.volunteerApplication.create({
+				data: {
+					user_id: ctx.session.user.id,
+					message: input.why,
+				},
+			});
+		}),
 	profile: protectedProcedure.query(({ ctx }) => {
 		return ctx.db.user.findUnique({
 			include: {

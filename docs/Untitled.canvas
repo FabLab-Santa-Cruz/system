@@ -1,0 +1,21 @@
+{
+	"nodes":[
+		{"id":"d22b78d017df7301","type":"text","text":"Landing page","x":-600,"y":-80,"width":250,"height":60},
+		{"id":"69d3be2fc0891197","type":"text","text":"Sign Up","x":-300,"y":-80,"width":250,"height":60},
+		{"id":"07df5714f7921548","type":"text","text":"Fill personal info","x":-8,"y":-80,"width":250,"height":60},
+		{"id":"c344cf8b0205e5c1","type":"text","text":"Request Volunteer","x":280,"y":-80,"width":250,"height":60},
+		{"id":"f0f7130599cf8d04","type":"text","text":"Wait for approval","x":-600,"y":40,"width":250,"height":60},
+		{"id":"21602be6170a34f4","type":"text","text":"Check approval rejected or accepted","x":-300,"y":40,"width":250,"height":60},
+		{"id":"cf4db26693ff2d25","type":"text","text":"Start projects","x":-8,"y":40,"width":250,"height":60},
+		{"id":"05602193d3702ca1","type":"text","text":"Start Flow Diagram","x":-220,"y":-200,"width":250,"height":60}
+	],
+	"edges":[
+		{"id":"9506ea435efba76a","fromNode":"d22b78d017df7301","fromSide":"right","toNode":"69d3be2fc0891197","toSide":"left"},
+		{"id":"d95826a53f71bbad","fromNode":"69d3be2fc0891197","fromSide":"right","toNode":"07df5714f7921548","toSide":"left"},
+		{"id":"61265787218117e2","fromNode":"07df5714f7921548","fromSide":"right","toNode":"c344cf8b0205e5c1","toSide":"left"},
+		{"id":"2038aee15fd5f1dc","fromNode":"c344cf8b0205e5c1","fromSide":"bottom","toNode":"f0f7130599cf8d04","toSide":"top"},
+		{"id":"13c4021e6ecbce92","fromNode":"f0f7130599cf8d04","fromSide":"right","toNode":"21602be6170a34f4","toSide":"left"},
+		{"id":"4271b8a1a7070ec1","fromNode":"21602be6170a34f4","fromSide":"right","toNode":"cf4db26693ff2d25","toSide":"left"},
+		{"id":"1fdf51cda4b88b87","fromNode":"21602be6170a34f4","fromSide":"bottom","toNode":"f0f7130599cf8d04","toSide":"bottom","label":"ReApply"}
+	]
+}

@@ -1,9 +1,10 @@
 "use client";
-import { Button, Form, Input, Modal, Table, Typography } from "antd";
+import { Button, Card, Form, Input, Modal, Table, Typography } from "antd";
 import { type ColumnProps } from "antd/es/table";
 import dayjs from "dayjs";
 
 import { useState } from "react";
+import VolunteersRequests from "~/app/_components/VolunteersRequests";
 import { type RouterOutputs } from "~/server/api/root";
 import { api } from "~/trpc/react";
 
@@ -17,14 +18,14 @@ export default function List() {
 			title: "Avatar",
 			key: "avatar",
 			render(_, row) {
-				return <>{row.person?.name}</>;
+				return <>{row.user.person?.name}</>;
 			},
 		},
 		{
 			title: "Nombre",
 			key: "name",
 			render(_, row) {
-				return <>{row.person?.name}</>;
+				return <>{row.user.person?.name}</>;
 			},
 		},
 		{
@@ -32,8 +33,8 @@ export default function List() {
 			key: "skills",
 			render(_, row) {
 				return (
-					<Typography.Text>{`${row.person?.f_lastname ?? ""} ${
-						row.person?.m_lastname ?? ""
+					<Typography.Text>{`${row.user.person?.f_lastname ?? ""} ${
+						row.user.person?.m_lastname ?? ""
 					}`}</Typography.Text>
 				);
 			},
@@ -44,7 +45,7 @@ export default function List() {
 			render(_, row) {
 				return (
 					<Typography.Text>
-						{row.person?.emails?.map((e) => e.mail).join(", ")}
+						{row.user.person?.emails?.map((e) => e.mail).join(", ")}
 					</Typography.Text>
 				);
 			},
@@ -55,7 +56,7 @@ export default function List() {
 			render(_, row) {
 				return (
 					<Typography.Text>
-						{row.person?.phones?.map((p) => p.phone).join(", ")}
+						{row.user.person?.phones?.map((p) => p.phone).join(", ")}
 					</Typography.Text>
 				);
 			},
@@ -109,7 +110,7 @@ export default function List() {
 	const [modal, setModal] = useState(false);
 	//const [selected, setSelected] = useState<Volunteer>();
 	return (
-		<div className="tw-m-4">
+		<div className="tw-m-4 tw-w-full">
 			<Modal
 				//title={`${selected ? "Editar" : "Crear"} voluntario`}
 				open={modal}
@@ -122,11 +123,14 @@ export default function List() {
 					</Form.Item>
 				</Form>
 			</Modal>
-			<Table
-				loading={lista.isLoading}
-				dataSource={lista.data}
-				columns={columns}
-			/>
+			<VolunteersRequests />
+			<Card title="Lista de voluntarios" size="small">
+				<Table
+					loading={lista.isLoading}
+					dataSource={lista.data}
+					columns={columns}
+				/>
+			</Card>
 		</div>
 	);
 }

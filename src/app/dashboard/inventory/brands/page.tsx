@@ -104,7 +104,7 @@ export default function Marcas() {
 			</div>
 			<div className="tw-basis-1/2">
 				<Divider>
-					<Typography.Title level={5}>this is good </Typography.Title>
+					<Typography.Title level={5}>Registro de marcas </Typography.Title>
 				</Divider>
 				<CreateBrand />
 			</div>

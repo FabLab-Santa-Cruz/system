@@ -1,4 +1,4 @@
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, Space } from "antd";
 import { type FormListProps } from "antd/es/form";
 
 export type BasicMultiInput = {
@@ -28,24 +28,31 @@ export default function MultipleInput({
 						const evaluateDelete =
 							deleteable !== undefined && deleteable === false;
 						return (
-							<Form.Item
-								{...props}
-								name={[props.name, "property"]}
-								key={props.key}
-							>
-								<Input
-									disabled={evaluateDelete}
-									placeholder={propertyTitle}
-									addonAfter={
-										<Button
+							<Form.Item key={props.key}>
+								<Space.Compact style={{ width: "100%" }}>
+									<Form.Item
+										{...props}
+										name={[props.name, "property"]}
+										key={props.key}
+										noStyle
+									>
+										<Input
 											disabled={evaluateDelete}
-											danger
-											onClick={() => operation.remove(props.name)}
-										>
-											Eliminar
-										</Button>
-									}
-								/>
+											placeholder={propertyTitle}
+											// addonAfter={
+
+											// }
+										/>
+									</Form.Item>
+									<Button
+										type="primary"
+										disabled={evaluateDelete}
+										danger
+										onClick={() => operation.remove(props.name)}
+									>
+										Eliminar
+									</Button>
+								</Space.Compact>
 								{/* Button remove */}
 							</Form.Item>
 						);
