@@ -1,15 +1,18 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import argon2 from "argon2";
-import type * as Prisma from '@prisma/client';
-
-import {
-  getServerSession,
-  type NextAuthOptions,
-} from "next-auth";
+import type * as Prisma from "@prisma/client";
+import { getServerSession, type NextAuthOptions } from "next-auth";
 import { type Adapter } from "next-auth/adapters";
-import Credentials from "next-auth/providers/credentials";
 
+import DiscordProvider from "next-auth/providers/discord";
+//const { uniqueNamesGenerator, adjectives, colors, animals } = require('unique-names-generator');
+import {
+  uniqueNamesGenerator,
+  adjectives,
+  colors,
+  animals,
+} from "unique-names-generator";
 import { db } from "~/server/db";
+import { env } from "~/env";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -18,7 +21,6 @@ import { db } from "~/server/db";
  * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
  */
 declare module "next-auth" {
-  
   // interface Session extends DefaultSession {
   //   user: {
   //     id: string;
@@ -27,13 +29,14 @@ declare module "next-auth" {
   //   } & DefaultSession["user"];
   // }
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface User extends Prisma.User { }
-
+  interface User extends Partial<Prisma.User> {}
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface JWT extends Prisma.User { }
-  // interface JWT  {
-  //   user: Prisma.User
-  // }
+  interface User extends Partial<Prisma.User> {}
+    //interface JWT extends Prisma.User {}
+  interface JWT  {
+    user: Prisma.User
+  }
+  
   // interface User {
   //   // ...other properties
   //   // role: UserRole;
@@ -53,15 +56,55 @@ export const authOptions: NextAuthOptions = {
   },
 
   callbacks: {
-    
-    signIn(params) { 
-      return !!params.user.isActive;
+    async signIn(props) {
+      // console.log(props, "props")
+      const banned = await db.bannedEmails.findFirst({
+        where: {
+          email: props.user.email ?? undefined,
+        },
+      });
+      if (banned) {
+        return false;
+      }
+      //Check if its first login
+      return true;
     },
-    
-    jwt: (props) => {
-      if (props.user) {
-        props.token = {...props.user, ...props.token, password: undefined}; 
-      } 
+    jwt: async (props) => {
+      if (props.user?.last_login === null) {
+        await db.persons.create({
+          data: {
+            user_id: props.user?.id,
+            name:
+              props.profile?.name ??
+              props.user?.name ??
+              uniqueNamesGenerator({
+                dictionaries: [adjectives, colors, animals],
+                length: 2,
+              }),
+            ...(props.user?.email
+              ? {
+                  emails: {
+                    create: { mail: props.user.email, deleteable: false },
+                  },
+                }
+              : null),
+          },
+        });
+      }
+      if (props.user?.id || props.token?.id) {
+        await db.user.update({
+          where: {
+            id: props.user?.id ?? props.token?.id,
+          },
+          data: {
+            last_login: new Date(),
+          },
+        });
+
+        if (props.user) {
+          props.token = { ...props.user, ...props.token, password: undefined };
+        }
+      }
       return props.token;
     },
     session: (props) => {
@@ -73,47 +116,46 @@ export const authOptions: NextAuthOptions = {
         },
       };
     },
-    
   },
   adapter: PrismaAdapter(db) as Adapter,
   providers: [
-    Credentials({
-      id: "domain-login",
-      name: "Domain Account",
-      credentials: {
-        username: {
-          label: "Username",
-          type: "text",
-          placeholder: "jsmith",
-        },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        if (!credentials) {
-          return null;
-        }
-        const user = await db.user.findUnique({
-          where: {
-            username: credentials.username,
-          },
-        });
-        if (!user) return null;
-        if (user.password !== null) {
-          const isValid = await argon2.verify(
-            user.password ,
-            credentials.password,
-          );
-          if (!isValid) return null;
-        }
-        
-        return user;
-      },
+    DiscordProvider({
+      clientId: env.DISCORD_CLIENT_ID,
+      clientSecret: env.DISCORD_CLIENT_SECRET,
     }),
+    // Credentials({
+    //   id: "domain-login",
+    //   name: "Domain Account",
+    //   credentials: {
+    //     username: {
+    //       label: "Username",
+    //       type: "text",
+    //       placeholder: "jsmith",
+    //     },
+    //     password: { label: "Password", type: "password" },
+    //   },
+    //   async authorize(credentials) {
+    //     if (!credentials) {
+    //       return null;
+    //     }
+    //     const user = await db.user.findUnique({
+    //       where: {
+    //         username: credentials.username,
+    //       },
+    //     });
+    //     if (!user) return null;
+    //     if (user.password !== null) {
+    //       const isValid = await argon2.verify(
+    //         user.password,
+    //         credentials.password,
+    //       );
+    //       if (!isValid) return null;
+    //     }
 
-    // DiscordProvider({
-    //   clientId: env.DISCORD_CLIENT_ID,
-    //   clientSecret: env.DISCORD_CLIENT_SECRET,
+    //     return user;
+    //   },
     // }),
+
     /**
      * ...add more providers here.
      *

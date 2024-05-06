@@ -67,22 +67,34 @@ model Session {
 enum UserType {
   VOLUNTEER
   ADMIN
+  GUEST
+}
+
+model BannedEmails {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  reason     String?
+  created_at DateTime @default(now())
+
+  @@index([email])
 }
 
 model User {
-  id            String       @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
-  email         String?      @unique
-  username      String?      @unique
-  password      String?
+  email         String?   @unique
+  username      String?
   emailVerified DateTime?
   image         String?
-  createdAt     DateTime     @default(now())
-  isActive      Boolean      @default(true)
-  userType      UserType     @default(VOLUNTEER)
+  createdAt     DateTime  @default(now())
+  userType      UserType  @default(GUEST)
   accounts      Account[]
   sessions      Session[]
-  volunteers    Volunteers[]
+  last_login    DateTime?
+  //volunteers    Volunteers[]
+  person        Persons?
+  ///For custom auth
+  ///password      String?
 }
 
 model VerificationToken {
@@ -223,16 +235,15 @@ model Volunteers {
   id                     String                @id @default(cuid())
   ///Recomended to use the CI of the person
   biometric_id           String?               @unique
-  user_id                String?
-  user                   User?                 @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  person_id              String
-  person                 Persons?              @relation(fields: [person_id], references: [id], onUpdate: NoAction)  
+  // user_id                String?
+  // user                   User?                 @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  person_id              String?               @unique
+  person                 Persons?              @relation(fields: [person_id], references: [id])
   skills                 Skills[]
   created_at             DateTime              @default(now())
   updated_at             DateTime              @updatedAt
   biometric_posts        BiometricPosts[]
   procedence             Procedence[]
-  avatar                 String?
   projects               Projects[]
   project_tasks          ProjectTasks[]
   micro_tasks            MicroTasks[]
@@ -244,20 +255,23 @@ model Volunteers {
 model Persons {
   id         String          @id @default(cuid())
   name       String
-  f_lastname  String? ///Father lastname
-  m_lastname  String? ///Mother lastname
+  f_lastname String? ///Father lastname
+  m_lastname String? ///Mother lastname
   ci         String?
   emails     EmailsPersons[]
   phones     PhonesPersons[]
   birthdate  DateTime?
-  gender_id  String
-  gender     Genders        @relation(fields: [gender_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  gender_id  String?
+  gender     Genders?        @relation(fields: [gender_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  volunteer  Volunteers?
   images     Files[]
   providers  Provider[]
-  volunteers Volunteers[]
-  created_at DateTime        @default(now())
-  deleted_at DateTime? 
-  updated_at DateTime        @updatedAt
+
+  created_at DateTime    @default(now())
+  deleted_at DateTime?
+  updated_at DateTime    @updatedAt
+  user_id    String?     @unique
+  user       User?       @relation(fields: [user_id], references: [id])
 
   @@index([ci, deleted_at])
 }
@@ -278,16 +292,17 @@ model Files {
 
 model PhonesPersons {
   id        String   @id @default(cuid())
-  phone     String   @unique
+  phone     String   
   person_id String
   Person    Persons? @relation(fields: [person_id], references: [id])
 }
 
 model EmailsPersons {
-  id        String   @id @default(cuid())
-  mail      String   @unique
-  person_id String
-  Person    Persons? @relation(fields: [person_id], references: [id])
+  id         String   @id @default(cuid())
+  mail       String
+  person_id  String
+  deleteable Boolean  @default(true)
+  Person     Persons? @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model Provider {

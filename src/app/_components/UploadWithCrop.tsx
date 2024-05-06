@@ -26,11 +26,11 @@ export const UploadWithCrop = ({
 }) => {
 	const [fileList, setFileList] = useState<UploadFile[]>(
 		value?.map((v) => ({
-			uid: v.id || v.key,
+			uid: v.id ?? v.key,
 			name: v.key,
 			status: "done",
 			url: WithUrl(v.key),
-		})) || [],
+		})) ?? [],
 	);
 	const [uploadedFiles, setUploadedFiles] = useState<
 		{
@@ -58,6 +58,7 @@ export const UploadWithCrop = ({
 	};
   useEffect(() => {
 			onChange?.(uploadedFiles);
+			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [uploadedFiles]);
 	return (
 		<ImgCrop rotationSlider>

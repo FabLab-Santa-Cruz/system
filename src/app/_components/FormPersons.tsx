@@ -2,32 +2,28 @@
 import { Button, DatePicker, Form, Input, Select } from "antd";
 import { api } from "~/trpc/react";
 import { UploadWithCrop } from "./UploadWithCrop";
-import dayjs, { Dayjs } from "dayjs";
-import { RouterOutputs } from "~/server/api/root";
-import { useEffect } from "react";
+import dayjs, { type Dayjs } from "dayjs";
+import { type RouterOutputs } from "~/server/api/root";
 
-import MultipleInput from "./MultipleInput";
+import MultipleInput, { type BasicMultiInput } from "./MultipleInput";
 export interface FormPersonOutput {
-	name: string;
-	f_lastname?: string;
-	m_lastname?: string;
-	ci?: string;
-	gender_id: string;
-	emails: MultiInput[];
-	phones: MultiInput[];
-	birthdate?: Dayjs | null;
-	images: Image[];
-}
+		name: string;
+		f_lastname?: string;
+		m_lastname?: string;
+		ci?: string;
+		gender_id: string;
+		emails: BasicMultiInput[];
+		phones: BasicMultiInput[];
+		birthdate?: Dayjs | null;
+		images: Image[];
+	}
 
 interface Image {
 	id: string;
 	key: string;
 }
 
-interface MultiInput {
-	id?: string;
-	property: string;
-}
+
 type Person = RouterOutputs["person"]["list"][0];
 
 export default function FormPersons({
@@ -35,7 +31,7 @@ export default function FormPersons({
 	person,
 }: {
 	onFinish: (e: FormPersonOutput) => void;
-	person?: Person | null;
+	person?: Partial<Person> | null;
 }) {
 	const [form] = Form.useForm();
 	const genders = api.person.listGenders.useQuery();
@@ -51,16 +47,17 @@ export default function FormPersons({
 				m_lastname: person?.m_lastname,
 				ci: person?.ci,
 				gender_id: person?.gender_id,
-				emails: person?.emails.map((e) => ({
+				emails: person?.emails?.map((e) => ({
 					id: e.id,
 					property: e.mail,
+					deleteable: e.deleteable,
 				})),
-				phones: person?.phones.map((p) => ({
+				phones: person?.phones?.map((p) => ({
 					id: p.id,
 					property: p.phone,
 				})),
 				birthdate: person?.birthdate ? dayjs(person.birthdate) : undefined,
-				images: person?.images.map((image) => ({
+				images: person?.images?.map((image) => ({
 					id: image.id,
 					key: image.key,
 				})),

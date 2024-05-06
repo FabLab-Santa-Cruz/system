@@ -43,4 +43,4 @@ yarn-error.log*
 .turbo
 /prisma/zod
 pg_schema.sql
-bun.lockb
+#bun.lockb

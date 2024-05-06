@@ -26,8 +26,8 @@ export const env = createEnv({
     MINIO_SECRET: z.string(),
     MINIO_KEY: z.string(),
     BIO_KEY: z.string(),
-    // DISCORD_CLIENT_ID: z.string(),
-    // DISCORD_CLIENT_SECRET: z.string(),
+    DISCORD_CLIENT_ID: z.string(),
+    DISCORD_CLIENT_SECRET: z.string(),
   },
 
   /**
@@ -50,11 +50,12 @@ export const env = createEnv({
     MINIO_ENDPOINT: process.env.MINIO_ENDPOINT,
     MINIO_SECRET: process.env.MINIO_SECRET,
     MINIO_KEY: process.env.MINIO_KEY,
-
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
+    DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
   },
 
   /**

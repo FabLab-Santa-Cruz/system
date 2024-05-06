@@ -6,6 +6,7 @@ import { uploadRouter } from "./routers/upload";
 import { categoriesRouter } from "./routers/categories";
 import { volunteersRouter } from "./routers/volunteers";
 import { personsRouter } from "./routers/persons";
+import { profileRouter } from "./routers/profile";
 
 
 
@@ -15,6 +16,7 @@ import { personsRouter } from "./routers/persons";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  profile: profileRouter,
   brand: brandRouter,
   upload: uploadRouter,
   category: categoriesRouter,

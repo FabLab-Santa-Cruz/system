@@ -3,61 +3,7 @@ import dayjs from "dayjs";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 export const personsRouter = createTRPCRouter({
-	// upsert: protectedProcedure
-	//   .input(z.object({
-	//     id: z.string().optional(),
-	//     name: z.string(),
-	//     lastname: z.string().nullish()
-	//     emails: z.array(z.object(
-	//       {
-	//         email: z.string().email(),
-	//         comment: z.string().nullable().optional()
-	//       }
-	//     )).optional(),
-	//     biometricId: z.string().nullable().optional(),
-	//     phones: z.array(z.object(
-	//       {
-	//         phone: z.string(),
-	//         comment: z.string().nullable().optional()
-	//       }
-	//     )),
-	//     userId: z.string().nullable().optional(),
-	//     skills: z.array(z.string()).optional(),
-	//     procedences: z.array(z.string()).nullable().optional(),
-	//     birthdate: z.string().datetime().nullable().optional(),
-	//     gender: z.string().optional(),
-	//     image: z.string().optional()
-	//   }))
-	//   .mutation(async ({ ctx, input }) => {
-
-	//     return ctx.db.volunteers.upsert({
-	//       where: {
-	//         id: input.id ?? "X"
-	//       },
-	//       create: {
-
-	//         name: input.name,
-	//         lastname: input.lastname,
-	//         emails: input.emails,
-	//         biometricId: input.biometricId,
-	//         phones: input.phones,
-	//         userId: input.userId,
-	//         skills: {
-	//           connect: input.skills?.map((s) => ({ id: s }))
-	//         },
-	//         procedence: {
-	//           connect: input.procedences?.map((s) => ({ id: s }))
-	//         },
-	//         birthdate: input.birthdate,
-	//         genderId: input.gender,
-	//         image: input.image
-	//       },
-	//       update: {
-	//         name: input.name,
-	//         image: input.image
-	//       }
-	//     })
-	//   }),
+	
 	delete: protectedProcedure
 		.input(z.object({ id: z.string() }))
 		.mutation(({ ctx, input }) => {
@@ -73,9 +19,8 @@ export const personsRouter = createTRPCRouter({
 	list: protectedProcedure
 		.input(
 			z.object({
-				//Search parameters
 				search: z.string().nullish(),
-				//check if deleteds.
+				
 				deleted: z.boolean().nullish(),
 			}),
 		)
@@ -116,10 +61,10 @@ export const personsRouter = createTRPCRouter({
 							id: true,
 						},
 					},
-					volunteers: {
-						select: {
-							id: true,
-						},
+					volunteer: {
+            select: {
+              id: true,
+            },
 					},
 				},
 			});

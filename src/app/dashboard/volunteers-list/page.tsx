@@ -14,6 +14,13 @@ export default function List() {
 	const [selected, setSelected] = useState<Volunteer | null>(null);
 	const columns: ColumnProps<Volunteer>[] = [
 		{
+			title: "Avatar",
+			key: "avatar",
+			render(_, row) {
+				return <>{row.person?.name}</>;
+			},
+		},
+		{
 			title: "Nombre",
 			key: "name",
 			render(_, row) {
@@ -21,8 +28,8 @@ export default function List() {
 			},
 		},
 		{
-			title: "Apellido(s)",
-			key: "lastname",
+			title: "Habilidades",
+			key: "skills",
 			render(_, row) {
 				return (
 					<Typography.Text>{`${row.person?.f_lastname ?? ""} ${
@@ -32,8 +39,8 @@ export default function List() {
 			},
 		},
 		{
-			title: "Email(s)",
-			key: "emails",
+			title: "Procedencia",
+			key: "procedence",
 			render(_, row) {
 				return (
 					<Typography.Text>
@@ -43,7 +50,7 @@ export default function List() {
 			},
 		},
 		{
-			title: "Telefono(s)",
+			title: "Projectos",
 			key: "phones",
 			render(_, row) {
 				return (
@@ -61,10 +68,13 @@ export default function List() {
 			},
 		},
 		{
-			title: "Fecha de nacimiento",
-			dataIndex: "birthdate",
-			key: "birthdate",
+			title: "Asistencia",
+			key: "procedence",
+			render(_, row) {
+				return <>{row.procedence.map((v) => v.name).join(", ")}</>;
+			},
 		},
+
 		{
 			title: "Creado",
 			dataIndex: "createdAt",

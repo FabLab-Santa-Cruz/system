@@ -4,13 +4,13 @@ import {
 	Button,
 	Divider,
 	Form,
-	FormProps,
+	type FormProps,
 	Input,
 	Table,
 	Typography,
 } from "antd";
-import { ColumnProps } from "antd/es/table";
-import { RouterOutputs } from "~/server/api/root";
+import { type ColumnProps } from "antd/es/table";
+import { type RouterOutputs } from "~/server/api/root";
 import { api } from "~/trpc/react";
 import { useGlobalContext } from "../globalContext";
 
@@ -19,7 +19,7 @@ export default function GenderCrud() {
 	const genders = api.person.listGenders.useQuery();
 	const deleteGender = api.person.deleteGender.useMutation({
 		onSuccess() {
-			genders.refetch();
+			void genders.refetch();
 		},
 	});
 	const upsertGender = api.person.upsertGender.useMutation({
@@ -77,7 +77,7 @@ export default function GenderCrud() {
 	const global = useGlobalContext();
 	const onFinish: FormProps<gender>["onFinish"] = (values) => {
 		if (genders.data?.find((g) => g.name === values.name)) {
-			global?.messageApi.error("El genero ya existe");
+			void global?.messageApi.error("El genero ya existe");
 			return;
 		}
 		void upsertGender.mutateAsync({
@@ -85,7 +85,7 @@ export default function GenderCrud() {
 			name: values.name,
 		});
 	};
-	const id = Form.useWatch("id", form);
+	const id = Form.useWatch("id", form) as string | undefined;
 	return (
 		<>
 			<Divider>

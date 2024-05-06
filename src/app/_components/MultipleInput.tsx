@@ -1,16 +1,17 @@
-import { Button, Form, Input, Tag } from "antd";
-import { FormListProps } from "antd/es/form";
-import { useEffect, useState } from "react";
+import { Button, Form, Input } from "antd";
+import { type FormListProps } from "antd/es/form";
 
 export type BasicMultiInput = {
 	id?: string; // for editing
 	property: string;
+	deleteable?: boolean;
 };
 
 export default function MultipleInput({
 	propertyTitle = "Property",
 	formName = "properties",
 	rules = [],
+	value,
 }: {
 	value?: BasicMultiInput[];
 	onChange?: (value: BasicMultiInput[]) => void;
@@ -20,30 +21,40 @@ export default function MultipleInput({
 }) {
 	return (
 		<Form.List name={formName} rules={rules}>
-			{(fields, { add, remove }) => (
+			{(fields, operation) => (
 				<>
-					{fields.map((props) => (
-						<Form.Item
-							{...props}
-							name={[props.name, "property"]}
-							key={props.key}
-						>
-							<Input
-								placeholder={propertyTitle}
-								addonAfter={
-									<Button danger onClick={() => remove(props.name)}>
-										Eliminar
-									</Button>
-								}
-							/>
-							{/* Button remove */}
-						</Form.Item>
-					))}
+					{fields.map((props, idx) => {
+						const deleteable = value?.[idx]?.deleteable;
+						const evaluateDelete =
+							deleteable !== undefined && deleteable === false;
+						return (
+							<Form.Item
+								{...props}
+								name={[props.name, "property"]}
+								key={props.key}
+							>
+								<Input
+									disabled={evaluateDelete}
+									placeholder={propertyTitle}
+									addonAfter={
+										<Button
+											disabled={evaluateDelete}
+											danger
+											onClick={() => operation.remove(props.name)}
+										>
+											Eliminar
+										</Button>
+									}
+								/>
+								{/* Button remove */}
+							</Form.Item>
+						);
+					})}
 					<Form.Item>
 						<Button
 							type="dashed"
 							onClick={() => {
-								add({
+								operation.add({
 									property: "",
 								});
 							}}

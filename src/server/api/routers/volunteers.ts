@@ -66,9 +66,9 @@ export const volunteersRouter = createTRPCRouter({
   list: protectedProcedure.query(({ ctx }) => {
     return ctx.db.volunteers.findMany({
       include: {
+
         skills: true,
         procedence: true,
-        user: true,
         biometric_posts: true,
         person: {
           include: {
