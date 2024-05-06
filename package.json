@@ -37,7 +37,7 @@
     "@trpc/next": "next",
     "@trpc/react-query": "next",
     "@trpc/server": "next",
-    "antd": "^5.16.2",
+    "antd": "5.16.5",
     "antd-img-crop": "^4.21.0",
     "argon2": "^0.40.1",
     "axios": "^1.6.8",
