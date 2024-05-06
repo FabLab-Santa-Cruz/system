@@ -3,13 +3,13 @@
   "dockerfileLines": [
     "FROM oven/bun:latest",
     "WORKDIR /usr/src/app",
-    "COPY ./prisma ./prisma ",
-    "COPY ./package*.json ./",
+    # "COPY ./prisma ./prisma ",
+    # "COPY ./package*.json ./",
+    "COPY ./ ./",
     "ARG DATABASE_URL",
     "ARG NEXTAUTH_SECRET",
     "ARG NEXTAUTH_URL",
     "RUN bun install",
-    "COPY ./ ./",
     "RUN bun build",
     "EXPOSE 80",
     "CMD [ \"bun\", \"run\"  , \"start\"]"
