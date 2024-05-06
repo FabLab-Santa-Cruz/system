@@ -16,6 +16,7 @@
     "ARG DISCORD_CLIENT_ID",
     "ARG DISCORD_CLIENT_SECRET",
     "RUN bun install",
+    "RUN bun run postinstall",
     "RUN bun run build",
     "EXPOSE 80",
     "CMD [ \"bun\", \"run\"  , \"start\"]"
