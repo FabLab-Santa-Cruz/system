@@ -1,10 +1,19 @@
 {
   "schemaVersion": 2,
   "dockerfileLines": [
-    "FROM oven/bun:latest",
-    "WORKDIR /usr/src/app",
+    "FROM oven/bun:latest as base",
 
-    "COPY ./ ./",
+    "FROM base as deps",
+    "WORKDIR /usr/src/app",
+    "COPY package.json ./"
+    "COPY bun.lockb ./",
+    "RUN bun install",
+
+
+    "FROM base as builder"
+    "WORKDIR /usr/src/app",
+    "COPY --from=deps /usr/src/app/node_modules ./node_modules",
+    "COPY . .",
     "ARG DATABASE_URL",
     "ARG NEXTAUTH_SECRET",
     "ARG NEXTAUTH_URL",
@@ -15,10 +24,14 @@
     "ARG BIO_KEY",
     "ARG DISCORD_CLIENT_ID",
     "ARG DISCORD_CLIENT_SECRET",
-    "RUN bun install",
-    "RUN bun run postinstall",
-    "RUN bun run build",
-    "EXPOSE 80",
-    "CMD [ \"bun\", \"run\"  , \"start\"]"
+    "RUN bun run build", 
+
+    "FROM node:20-alpine as runner"
+    "WORKDIR /app",
+    "COPY --from=builder /usr/src/app/.next/standalone ./",
+    "COPY --from=builder /usr/src/app/.next/static ./.next/static",
+    "EXPOSE 3000",
+    "ENV PORT 3000",
+    "CMD [\"node\", \"server.js\"]   
   ]
 }
