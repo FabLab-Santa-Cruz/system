@@ -54,9 +54,9 @@ type AdapterNew = Omit<Adapter, "createUser"> & {
  * This assumes that we are running production over https.
  * https://news.ycombinator.com/item?id=14148668#:~:text=The%20__Secure%2D%20prefix%20makes,to%20overwrite%20a%20secure%20cookie.
  */
-const COOKIE_PREFIX = process.env.NODE_ENV === "production" ? "__Secure-" : "";
-const COOKIE_PREFIX_HOST =
-	process.env.NODE_ENV === "production" ? "__Host-" : "";
+const COOKIE_PREFIX = env.NODE_ENV === "production" ? "__Secure-" : "";
+const COOKIE_PREFIX_HOST = env.NODE_ENV === "production" ? "__Host-" : "";
+console.log("Running ON", env.NODE_ENV);
 const COOKIES_LIFE_TIME = 24 * 60 * 60;
 const adapter = PrismaAdapter(db) as AdapterNew;
 adapter.createUser = async ({ id: _id, ...data }) => {
