@@ -10,7 +10,7 @@
     "RUN bun install",
 
 
-    "FROM base as builder"
+    "FROM base as builder",
     "WORKDIR /usr/src/app",
     "COPY --from=deps /usr/src/app/node_modules ./node_modules",
     "COPY . .",
@@ -26,12 +26,12 @@
     "ARG DISCORD_CLIENT_SECRET",
     "RUN bun run build", 
 
-    "FROM node:20-alpine as runner"
+    "FROM node:20-alpine as runner",
     "WORKDIR /app",
-    "COPY --from=builder /usr/src/app/.next/standalone ./",
+    "COPY --from=builder /usr/src/app/.next/standalone ./" ,
     "COPY --from=builder /usr/src/app/.next/static ./.next/static",
     "EXPOSE 3000",
     "ENV PORT 3000",
-    "CMD [\"node\", \"server.js\"]   
+    "CMD [\"node\", \"server.js\"]"   
   ]
 }
