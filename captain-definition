@@ -21,6 +21,7 @@
     "ARG BIO_KEY",
     "ARG DISCORD_CLIENT_ID",
     "ARG DISCORD_CLIENT_SECRET",
+    "RUN bun run prisma generate", 
     "RUN bun run build", 
     "FROM node:20-alpine as runner",
     "WORKDIR /app",
