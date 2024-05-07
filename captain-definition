@@ -4,7 +4,7 @@
     "FROM oven/bun:latest as base",
     "FROM base as deps",
     "WORKDIR /usr/src/app",
-    "COPY package.json ./"
+    "COPY package.json ./",
     "COPY bun.lockb ./",
     "RUN bun install",
     "FROM base as builder",
