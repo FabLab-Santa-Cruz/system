@@ -57,6 +57,7 @@ type AdapterNew = Omit<Adapter, "createUser"> & {
 const COOKIE_PREFIX = env.NODE_ENV === "production" ? "__Secure-" : "";
 const COOKIE_PREFIX_HOST = env.NODE_ENV === "production" ? "__Host-" : "";
 console.log("Running ON", env.NODE_ENV);
+console.log(`${COOKIE_PREFIX}next-auth.session-token`);
 const COOKIES_LIFE_TIME = 24 * 60 * 60;
 const adapter = PrismaAdapter(db) as AdapterNew;
 adapter.createUser = async ({ id: _id, ...data }) => {
