@@ -1,6 +1,6 @@
-# Stage 1: Build the application
+# Stage 1: Build the application, All this steps are required to use bun lock. 
+# Check https://github.com/prisma/prisma/issues/21241
 FROM ubuntu:22.04 as base
-
 # Install necessary packages
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl && rm -rf /var/lib/apt/lists/*
 RUN curl -sL https://deb.nodesource.com/setup_20.x | bash -
@@ -36,7 +36,7 @@ ARG DISCORD_CLIENT_SECRET
 
 # Generate Prisma client
 RUN bun run prisma generate
-
+RUN bun run prisma migrate deploy
 # Build the application
 RUN bun run build
 
