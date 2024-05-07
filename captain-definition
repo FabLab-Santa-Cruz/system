@@ -2,14 +2,11 @@
   "schemaVersion": 2,
   "dockerfileLines": [
     "FROM oven/bun:latest as base",
-
     "FROM base as deps",
     "WORKDIR /usr/src/app",
     "COPY package.json ./"
     "COPY bun.lockb ./",
     "RUN bun install",
-
-
     "FROM base as builder",
     "WORKDIR /usr/src/app",
     "COPY --from=deps /usr/src/app/node_modules ./node_modules",
@@ -25,7 +22,6 @@
     "ARG DISCORD_CLIENT_ID",
     "ARG DISCORD_CLIENT_SECRET",
     "RUN bun run build", 
-
     "FROM node:20-alpine as runner",
     "WORKDIR /app",
     "COPY --from=builder /usr/src/app/.next/standalone ./" ,
