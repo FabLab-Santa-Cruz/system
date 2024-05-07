@@ -27,7 +27,7 @@
     "RUN bun run build", 
     "FROM node:20-alpine as runner",
     "WORKDIR /app",
-    "COPY --from=base /usr/src/app/.next/standalone ./" ,
+    "COPY --from=base /usr/src/app/.next/standalone ./",
     "COPY --from=base /usr/src/app/.next/static ./.next/static",
     "EXPOSE 3000",
     "ENV PORT 3000",
