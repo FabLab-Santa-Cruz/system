@@ -1,36 +1,4 @@
 {
   "schemaVersion": 2,
-  "dockerfileLines": [
-    "FROM ubuntu:22.04 as base",
-    "RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl && rm -rf /var/lib/apt/lists/*",
-    "RUN curl -sL https://deb.nodesource.com/setup_20.x | bash -",
-    "RUN apt-get install -y nodejs",
-    "RUN apt-get install -y unzip",
-    "RUN npm install -g bun",
-    "RUN mkdir -p /usr/src/app",
-    "WORKDIR /usr/src/app",
-    "COPY package.json ./",
-    "COPY bun.lockb ./",
-    "RUN bun install",
-    "COPY . .",
-    "ARG DATABASE_URL",
-    "ARG NEXTAUTH_SECRET",
-    "ARG NEXTAUTH_URL",
-    "ARG MINIO_KEY",
-    "ARG MINIO_SECRET",
-    "ARG MINIO_ENDPOINT",
-    "ARG NEXT_PUBLIC_STORAGE_PATH",
-    "ARG BIO_KEY",
-    "ARG DISCORD_CLIENT_ID",
-    "ARG DISCORD_CLIENT_SECRET",
-    "RUN bun run prisma generate", 
-    "RUN bun run build", 
-    "FROM node:20-alpine as runner",
-    "WORKDIR /app",
-    "COPY --from=base /usr/src/app/.next/standalone ./",
-    "COPY --from=base /usr/src/app/.next/static ./.next/static",
-    "EXPOSE 3000",
-    "ENV PORT 3000",
-    "CMD [ \"node\", \"server.js\"]"
-  ]
+  "dockerfilePath": "./dockerfile"
 }
