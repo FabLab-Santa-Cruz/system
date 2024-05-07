@@ -50,6 +50,14 @@ declare module "next-auth" {
 type AdapterNew = Omit<Adapter, "createUser"> & {
 	createUser: (data: Prisma.User) => Promise<Prisma.User>;
 };
+/**
+ * This assumes that we are running production over https.
+ * https://news.ycombinator.com/item?id=14148668#:~:text=The%20__Secure%2D%20prefix%20makes,to%20overwrite%20a%20secure%20cookie.
+ */
+const COOKIE_PREFIX = process.env.NODE_ENV === "production" ? "__Secure-" : "";
+const COOKIE_PREFIX_HOST =
+	process.env.NODE_ENV === "production" ? "__Host-" : "";
+const COOKIES_LIFE_TIME = 24 * 60 * 60;
 const adapter = PrismaAdapter(db) as AdapterNew;
 adapter.createUser = async ({ id: _id, ...data }) => {
 	const person = await db.persons.create({
@@ -81,6 +89,63 @@ adapter.createUser = async ({ id: _id, ...data }) => {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
+	cookies: {
+		sessionToken: {
+			name: `${COOKIE_PREFIX}next-auth.session-token`,
+			options: {
+				httpOnly: true,
+				sameSite: "lax",
+				path: "/",
+				secure: true,
+			},
+		},
+		callbackUrl: {
+			name: `${COOKIE_PREFIX_HOST}next-auth.callback-url`,
+			options: {
+				sameSite: "lax",
+				path: "/",
+				secure: true,
+			},
+		},
+		csrfToken: {
+			name: `${COOKIE_PREFIX}next-auth.csrf-token`,
+			options: {
+				httpOnly: true,
+				sameSite: "lax",
+				path: "/",
+				secure: true,
+			},
+		},
+		pkceCodeVerifier: {
+			name: `${COOKIE_PREFIX}next-auth.pkce.code_verifier`,
+			options: {
+				httpOnly: true,
+				sameSite: "lax",
+				path: "/",
+				secure: true,
+				maxAge: COOKIES_LIFE_TIME,
+			},
+		},
+		state: {
+			name: `${COOKIE_PREFIX}next-auth.state`,
+			options: {
+				httpOnly: true,
+				sameSite: "lax",
+				path: "/",
+				secure: true,
+				maxAge: COOKIES_LIFE_TIME,
+			},
+		},
+		nonce: {
+			name: `${COOKIE_PREFIX}next-auth.nonce`,
+			options: {
+				httpOnly: true,
+				sameSite: "lax",
+				path: "/",
+				secure: true,
+			},
+		},
+	},
 	session: {
 		strategy: "jwt",
 		maxAge: 30 * 24 * 60 * 60, // 30 days
