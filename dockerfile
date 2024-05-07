@@ -56,6 +56,7 @@ EXPOSE 3000
 
 # Set environment variables
 ENV PORT=3000
-
+# Define run arg
+ARG NODE_ENV
 # Run the application
 CMD [ "node", "server.js" ]

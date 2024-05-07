@@ -96,7 +96,7 @@ export const authOptions: NextAuthOptions = {
 				httpOnly: true,
 				sameSite: "lax",
 				path: "/",
-				secure: true,
+				secure: env.NODE_ENV === "production",
 			},
 		},
 		callbackUrl: {
@@ -104,7 +104,7 @@ export const authOptions: NextAuthOptions = {
 			options: {
 				sameSite: "lax",
 				path: "/",
-				secure: true,
+				secure: env.NODE_ENV === "production",
 			},
 		},
 		csrfToken: {
@@ -113,7 +113,7 @@ export const authOptions: NextAuthOptions = {
 				httpOnly: true,
 				sameSite: "lax",
 				path: "/",
-				secure: true,
+				secure: env.NODE_ENV === "production",
 			},
 		},
 		pkceCodeVerifier: {
@@ -122,7 +122,7 @@ export const authOptions: NextAuthOptions = {
 				httpOnly: true,
 				sameSite: "lax",
 				path: "/",
-				secure: true,
+				secure: env.NODE_ENV === "production",
 				maxAge: COOKIES_LIFE_TIME,
 			},
 		},
@@ -132,7 +132,7 @@ export const authOptions: NextAuthOptions = {
 				httpOnly: true,
 				sameSite: "lax",
 				path: "/",
-				secure: true,
+				secure: env.NODE_ENV === "production",
 				maxAge: COOKIES_LIFE_TIME,
 			},
 		},
@@ -142,7 +142,7 @@ export const authOptions: NextAuthOptions = {
 				httpOnly: true,
 				sameSite: "lax",
 				path: "/",
-				secure: true,
+				secure: env.NODE_ENV === "production",
 			},
 		},
 	},
