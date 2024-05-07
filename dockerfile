@@ -23,6 +23,7 @@ RUN bun install
 COPY . .
 
 # Define build arguments
+ARG NODE_ENV
 ARG DATABASE_URL
 ARG NEXTAUTH_SECRET
 ARG NEXTAUTH_URL
