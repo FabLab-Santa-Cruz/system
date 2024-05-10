@@ -17,6 +17,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "prisma": {
+    "seed": "ts-node prisma/seed/basic.ts"
+  },
   "scripts": {
     "build": "next build",
     "db:push": "prisma db push",
