@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-
+import sanitizeHtml from 'sanitize-html';
 export const profileRouter = createTRPCRouter({
 	applications: protectedProcedure.query(({ ctx }) => {
 		return ctx.db.volunteerApplication.findMany({
@@ -25,10 +25,12 @@ export const profileRouter = createTRPCRouter({
 	applicateVolunteer: protectedProcedure
 		.input(z.object({ why: z.string() }))
 		.mutation(async ({ ctx, input }) => {
+      //Clean input from XSS attack
+      const cleanInput = sanitizeHtml(input.why);     
 			return await ctx.db.volunteerApplication.create({
 				data: {
 					user_id: ctx.session.user.id,
-					message: input.why,
+					message: cleanInput,
 				},
 			});
 		}),
@@ -88,12 +90,12 @@ export const profileRouter = createTRPCRouter({
 						equals: false,
 					},
 				},
-			});
+      });
 			if (canDelete.length > 0) {
 				input.emails = input.emails.filter(
-					(v) => !!canDelete.find((z) => z.id === v.id),
+					(v) => !!canDelete.find((z) => z.id === v.id || v.id === null || v.id === undefined),
 				);
-			}
+      }      
 			return await ctx.db.persons.update({
 				where: {
 					id: input.id,
@@ -130,12 +132,12 @@ export const profileRouter = createTRPCRouter({
 							id: {
 								notIn: input.emails
 									.map((email) => email.id)
-									.filter((id) => id) as string[],
+									.filter((id) => id) as string[] ?? [],
 							},
 						},
 						upsert: input.emails.map((email) => ({
 							where: {
-								id: email.id,
+								id: email.id ?? "X",
 							},
 							create: {
 								mail: email.property,

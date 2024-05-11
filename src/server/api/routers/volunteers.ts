@@ -2,13 +2,36 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const volunteersRouter = createTRPCRouter({
+  careersVolunteer: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(), //id of the volunteer
+        ids: z.array(z.string()), //ids of the careers
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.session.user.userType !== "ADMIN")
+        throw new Error("Unauthorized");
+      return await ctx.db.volunteers.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          careers: {
+            set: [],
+            connect: input.ids.map((id) => ({ id })),
+          },
+        },
+      });
+    }),
   procedenceVolunteer: protectedProcedure
     .input(
       z.object({
         id: z.string(), //id of the volunteer
-        ids : z.array(z.string()), //ids of the procedences
-      })
-    ).mutation(async ({ ctx, input }) => {
+        ids: z.array(z.string()), //ids of the procedences
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
       if (ctx.session.user.userType !== "ADMIN")
         throw new Error("Unauthorized");
       return await ctx.db.volunteers.update({
@@ -19,7 +42,7 @@ export const volunteersRouter = createTRPCRouter({
           procedence: {
             set: [],
             connect: input.ids.map((id) => ({ id })),
-          }
+          },
         },
       });
     }),
@@ -192,6 +215,7 @@ export const volunteersRouter = createTRPCRouter({
   list: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.volunteers.findMany({
       include: {
+        careers: true,
         skills: true,
         procedence: true,
         //biometric_posts: true,

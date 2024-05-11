@@ -242,6 +242,12 @@ enum VolunteerStatus {
   INACTIVE
 }
 
+model Careers {
+  id         String       @id @default(cuid())
+  name       String
+  volunteers Volunteers[]
+}
+
 model Volunteers {
   id                     String                @id @default(cuid())
   ///Recomended to use the CI of the person
@@ -256,6 +262,7 @@ model Volunteers {
   status                 VolunteerStatus       @default(ACTIVE)
   biometric_posts        BiometricPosts[]
   procedence             Procedence[]
+  careers                Careers[]
   projects               Projects[]
   project_tasks          ProjectTasks[]
   micro_tasks            MicroTasks[]

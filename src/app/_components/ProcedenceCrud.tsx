@@ -17,6 +17,7 @@ export default function ProcedenceCrud() {
       void utils.volunteer.procedences.refetch();
       void utils.volunteer.list.refetch();
       void global?.messageApi.success("Procedencia actualizada");
+      form.resetFields();
     },
   });
   const deleteProcedence = api.volunteer.deleteProcedence.useMutation({
@@ -36,6 +37,7 @@ export default function ProcedenceCrud() {
     {
       title: "Acciones",
       key: "actions",
+      width: 200,
       render: (_: unknown, procedence) => {
         return (
           <div className="tw-flex tw-gap-2">
