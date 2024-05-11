@@ -77,7 +77,7 @@ export default function Marcas() {
 	];
 	const [modalEdit, setModalEdit] = useState<Brand | null>(null);
 	return (
-		<div className="tw-m-2 tw-flex tw-w-full  tw-justify-center">
+		<div className="tw-p-2 tw-flex tw-w-full  tw-justify-center ">
 			<Modal
 				title="Editar marca"
 				open={!!modalEdit}

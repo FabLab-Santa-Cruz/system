@@ -4,7 +4,7 @@ import { Button, Form, Input, Popconfirm, Table } from "antd";
 import { type ColumnProps } from "antd/es/table";
 import { type RouterOutputs } from "~/server/api/root";
 import { api } from "~/trpc/react";
-import { useGlobalContext } from "../globalContext";
+import { useGlobalContext } from "../state/globalContext";
 
 type Procedencias = RouterOutputs["volunteer"]["procedences"][0];
 

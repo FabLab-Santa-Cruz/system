@@ -1,42 +1,31 @@
 import "~/styles/globals.css";
-
-import { Inter } from "next/font/google";
-import { ConfigProvider } from "antd";
 import { TRPCReactProvider } from "~/trpc/react";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
-
-import esEs from "antd/es/locale/es_ES";
-import { GlobalProvider } from "./globalContext";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
+import { GlobalProvider } from "./state/globalContext";
 
 export const metadata = {
   title: "FabLab App",
   description: "Tools",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
+import { authOptions } from "~/server/auth";
+import { getServerSession } from "next-auth/next";
 
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  
+  const session = await getServerSession(authOptions);
   return (
-			<html lang="en">
-				<body className={`font-sans ${inter.variable}`}>
-					<GlobalProvider>
-						<TRPCReactProvider>
-							<AntdRegistry>
-								<ConfigProvider locale={esEs}>{children}</ConfigProvider>?
-							</AntdRegistry>
-						</TRPCReactProvider>
-					</GlobalProvider>
-				</body>
-			</html>
-		);
+    <html lang="es">
+      <body>
+        <AntdRegistry>
+          <TRPCReactProvider>
+            <GlobalProvider session={session}>{children}</GlobalProvider>
+          </TRPCReactProvider>
+        </AntdRegistry>
+      </body>
+    </html>
+  );
 }

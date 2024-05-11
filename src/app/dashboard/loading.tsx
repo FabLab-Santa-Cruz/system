@@ -1,9 +1,17 @@
-import { Spin } from "antd";
+
+import Image from "next/image";
 
 export default function LoadingDashboard() {
-	return (
-		<div className="tw-w-full tw-h-screen tw-flex tw-justify-center tw-items-center">
-			<Spin size="large" />;
-		</div>
-	);
+  return (
+    <div className="tw-flex tw-h-screen tw-w-full tw-items-center tw-justify-center">
+      
+      <Image
+        className="tw-animate-spin"
+        width={200}
+        height={200}
+        alt="logo"
+          src="/iconlogo.png" />;
+        
+    </div>
+  );
 }

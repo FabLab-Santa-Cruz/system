@@ -5,7 +5,7 @@ import { type ColumnProps } from "antd/es/table";
 import { useState } from "react";
 import { type RouterOutputs } from "~/server/api/root";
 import { api } from "~/trpc/react";
-import { useGlobalContext } from "../globalContext";
+import { useGlobalContext } from "../state/globalContext";
 
 /**
  * Objective: allow admins to approve or decline volunteer applications

@@ -13,6 +13,7 @@ export default function PieChartGenders() {
   const volunteers = api.volunteer.list.useQuery(); 
 
   const config: PieConfig = {
+    width: 500,
     title: {
       visible: true,
       text: "Generos",

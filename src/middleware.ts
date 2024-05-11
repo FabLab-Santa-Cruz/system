@@ -33,16 +33,15 @@ export async function middleware(request: NextRequest) {
 	 *
 	 */
 	if (!currentUser && request.nextUrl.pathname.startsWith("/dashboard")) {
-		return Response.redirect(new URL("/", request.url));
-	}
-	if (request.nextUrl.pathname === "/" && currentUser) {
-		return Response.redirect(new URL("/dashboard", request.url));
-	}
-	if (request.nextUrl.pathname === "/" && !currentUser) {
 		return Response.redirect(new URL("/api/auth/signin", request.url));
 	}
+	// if (request.nextUrl.pathname === "/" && currentUser) {
+	// 	return Response.redirect(new URL("/dashboard", request.url));
+	// }
+	// if (request.nextUrl.pathname === "/" && !currentUser) {
+	// 	return Response.redirect(new URL("/api/auth/signin", request.url));
+	// }
 }
-
 export const config = {
 	//matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)', '/dashboard/:path*'],
 };

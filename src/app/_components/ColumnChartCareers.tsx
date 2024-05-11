@@ -1,12 +1,14 @@
 'use client'
-import { Card } from "antd";
+import { Card, Spin } from "antd";
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from "react";
 import { api } from "~/trpc/react";
 import { type ColumnConfig } from "@ant-design/plots";
 const Column = dynamic(
   () => import("@ant-design/plots").then((mod) => mod.Column),
-  { ssr: false }
+  {
+    ssr: false
+  }
 )
 type TChartData = { type: string, value: number }
 export default function ColumnChartCareers() { 
@@ -16,6 +18,9 @@ export default function ColumnChartCareers() {
     data,
     xField: 'type',
     yField: 'value',
+    theme: {
+      
+    },
     label: {
       text: (originData: TChartData) => {
         const val = originData.value;

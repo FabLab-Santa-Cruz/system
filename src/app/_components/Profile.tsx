@@ -14,7 +14,7 @@ import { api } from "~/trpc/react";
 import FormPersons, { type FormPersonOutput } from "./FormPersons";
 import { useState } from "react";
 import { WithUrl } from "~/utils/withUrl";
-import { useGlobalContext } from "../globalContext";
+import { useGlobalContext } from "../state/globalContext";
 export default function ProfileDiscord() {
 	const profile = api.profile.profile.useQuery();
 	const itemsDiscord: DescriptionsProps["items"] = [

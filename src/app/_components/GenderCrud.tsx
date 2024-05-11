@@ -12,7 +12,7 @@ import {
 import { type ColumnProps } from "antd/es/table";
 import { type RouterOutputs } from "~/server/api/root";
 import { api } from "~/trpc/react";
-import { useGlobalContext } from "../globalContext";
+import { useGlobalContext } from "../state/globalContext";
 
 type gender = RouterOutputs["person"]["listGenders"][0];
 export default function GenderCrud() {

@@ -20,7 +20,7 @@ import FormPersons, {
 	type FormPersonOutput,
 } from "~/app/_components/FormPersons";
 import GenderCrud from "~/app/_components/GenderCrud";
-import { useGlobalContext } from "~/app/globalContext";
+import { useGlobalContext } from "~/app/state/globalContext";
 import { type RouterOutputs } from "~/server/api/root";
 import { api } from "~/trpc/react";
 import Image from "next/image";
