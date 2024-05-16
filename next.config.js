@@ -7,7 +7,10 @@ await import("./src/env.js");
 /** @type {import("next").NextConfig} */
 const config = {
   output: "standalone",
+  outputFileTracing: true,
+
   images: {
+    //unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",

@@ -50,6 +50,8 @@ WORKDIR /app
 # Copy built files from the previous stage
 COPY --from=base /usr/src/app/.next/standalone ./
 COPY --from=base /usr/src/app/.next/static ./.next/static
+#Copy public folder
+COPY --from=base /usr/src/app/public ./public
 
 # Expose port 3000
 EXPOSE 3000

@@ -10,7 +10,7 @@ export default function LoadingDashboard() {
         width={200}
         height={200}
         alt="logo"
-          src="/iconlogo.png" />;
+          src="/pictures/iconlogo.png" />;
         
     </div>
   );

@@ -60,7 +60,7 @@ export default function DashboardLayout({
       <div className=" tw-w-40">
         <Image
           alt="logo"
-          src="/logo.png"
+          src="/pictures/logo.png"
           width={160}
           height={0}
           style={{width: 160, height: "auto"}}
