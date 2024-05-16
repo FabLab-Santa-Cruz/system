@@ -2,6 +2,80 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const volunteersRouter = createTRPCRouter({
+  assistenceVolunteer: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(), //id of the volunteer
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      console.log(input.id, "INPUTTTTTTTTTTT")
+      if (ctx.session.user.userType !== "ADMIN")
+        throw new Error("Unauthorized");
+
+      const volunteer = await ctx.db.volunteers.findFirst({
+          where: {
+            id: input.id,
+          },
+          include: {
+            user: {
+              include: {
+                person: true,
+              },
+            },
+          },
+        });
+      return {
+        volunteer: volunteer,
+        assistences: await ctx.db.biometricPosts.findMany({
+          orderBy: {
+            date: "desc",
+          },
+          where: {
+            who_id: volunteer?.biometric_id ?? "X",
+          },
+          include: {
+            weather_log: {
+              include: {
+                air_quality_weather: true,
+              },
+            },
+          },
+        }),
+      };
+    }),
+
+  finishVolunteer: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.session.user.userType !== "ADMIN")
+        throw new Error("Unauthorized");
+
+      return await ctx.db.volunteers.update({
+        where: {
+          id: input,
+        },
+        data: {
+          status: "INACTIVE",
+          user: {
+            update: {
+              userType: "GUEST",
+              volunteer_applications: {
+                updateMany: {
+                  where: {
+                    status: "ACCEPTED",
+                  },
+                  data: {
+                    status: "ENDED",
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+    }),
+
   careersVolunteer: protectedProcedure
     .input(
       z.object({
@@ -212,28 +286,77 @@ export const volunteersRouter = createTRPCRouter({
       });
     }),
 
-  list: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.db.volunteers.findMany({
-      include: {
-        careers: true,
-        skills: true,
-        procedence: true,
-        //biometric_posts: true,
-        user: {
-          include: {
+  list: protectedProcedure
+    .input(z.object({ search: z.string() }).nullish())
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.volunteers.findMany({
+        where: {
+          user: {
             person: {
-              include: {
-                images: true,
-                gender: true,
-                emails: true,
-                phones: true,
+              OR: [
+                {
+                  m_lastname: {
+                    contains: input?.search ?? "",
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  f_lastname: {
+                    contains: input?.search ?? "",
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  name: {
+                    contains: input?.search ?? "",
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  emails: {
+                    some: {
+                      mail: {
+                        contains: input?.search ?? "",
+                        mode: "insensitive",
+                      },
+                    },
+                  },
+                },
+                {
+                  phones: {
+                    some: {
+                      phone: {
+                        contains: input?.search ?? "",
+                        mode: "insensitive",
+                      },
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        },
+
+        include: {
+          careers: true,
+          skills: true,
+          procedence: true,
+          //biometric_posts: true,
+          user: {
+            include: {
+              person: {
+                include: {
+                  images: true,
+                  gender: true,
+                  emails: true,
+                  phones: true,
+                },
               },
             },
           },
         },
-      },
-    });
-  }),
+      });
+    }),
   assignCode: protectedProcedure
     .input(z.object({ id: z.string(), code: z.string() }))
     .mutation(async ({ ctx, input }) => {

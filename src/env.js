@@ -28,6 +28,9 @@ export const env = createEnv({
     BIO_KEY: z.string(),
     DISCORD_CLIENT_ID: z.string(),
     DISCORD_CLIENT_SECRET: z.string(),
+    WEATHER_API_URL: z.string(),
+    WEATHER_API_KEY: z.string(),
+    FABLAB_COORDINATES: z.string(),
   },
 
   /**
@@ -45,6 +48,9 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
+    FABLAB_COORDINATES: process.env.FABLAB_COORDINATES,
+    WEATHER_API_URL: process.env.WEATHER_API_URL,
+    WEATHER_API_KEY: process.env.WEATHER_API_KEY,
     BIO_KEY: process.env.BIO_KEY,
     NEXT_PUBLIC_STORAGE_PATH: process.env.NEXT_PUBLIC_STORAGE_PATH,
     MINIO_ENDPOINT: process.env.MINIO_ENDPOINT,

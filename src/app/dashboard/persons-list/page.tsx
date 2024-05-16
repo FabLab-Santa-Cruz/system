@@ -178,11 +178,17 @@ export default function PersonList() {
 			title: "Es...",
 			key: "Is",
 			width: 150,
-			render: (_: unknown, person) => {
+      render: (_: unknown, person) => {
+        let tag = "Voluntario"
+        if (person.user?.volunteer && person.user?.userType === "GUEST") { 
+          tag = "Voluntario retirado"
+        }
+
+
 				return (
 					<>
 						{person.user?.volunteer ? (
-							<Tag color="green">Voluntario</Tag>
+              <Tag color={tag === "Voluntario retirado" ? "yellow" : "green"}>{tag}</Tag>
 						) : (
 							<Tag color="red">No es voluntario</Tag>
 						)}

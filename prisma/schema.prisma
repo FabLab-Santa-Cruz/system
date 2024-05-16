@@ -169,25 +169,25 @@ model Inventory {
 }
 
 model BiometricPosts {
-  id          String        @id @default(cuid())
-  who_id      String
-  date        DateTime
-  who         Volunteers    @relation(fields: [who_id], references: [biometric_id], onDelete: NoAction, onUpdate: NoAction)
-  WeatherLogs WeatherLogs[]
+  id            String       @id @default(cuid())
+  who_id        String
+  date          DateTime
+  creation_date DateTime     @default(now())
+  who           Volunteers   @relation(fields: [who_id], references: [biometric_id], onDelete: NoAction, onUpdate: NoAction)
+  weather_log   WeatherLogs?
 }
 
 //check https://www.weatherapi.com/docs/
 model AirQualityWeather {
   id             String @id @default(cuid())
-  weather_log_id String
+  weather_log_id String @unique
 
-  carbon_monoxide        Float?
-  ozone                  Float?
-  nitrogen_dioxide       Float?
-  sulfur_dioxide         Float?
-  particulate_matter_10  Float?
-  particulate_matter_25  Float?
-  particulate_matter_100 Float?
+  carbon_monoxide       Float?
+  ozone                 Float?
+  nitrogen_dioxide      Float?
+  sulfur_dioxide        Float?
+  particulate_matter_10 Float?
+  particulate_matter_25 Float?
   ///   	US - EPA standard.
   /// 1 means Good
   /// 2 means Moderate
@@ -195,26 +195,27 @@ model AirQualityWeather {
   /// 4 means Unhealthy
   /// 5 means Very Unhealthy
   /// 6 means Hazardous
-  us_epa_index           Int?
-  gb_defra_index         Int?
+  us_epa_index          Int?
+  gb_defra_index        Int?
 
   weather_logs WeatherLogs @relation(fields: [weather_log_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model WeatherLogs {
-  id                  String              @id @default(cuid())
-  biometric_post_id   String
-  temperature_c       Float
-  wind_dir            String
-  humidity            Float
-  precipitation_mm    Float
-  cloud               Int
-  wind_speed_kmh      Float
-  pressure            Float
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  biometric_post      BiometricPosts      @relation(fields: [biometric_post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  air_quality_weather AirQualityWeather[]
+  id                String   @id @default(cuid())
+  biometric_post_id String   @unique
+  temperature_c     Float
+  wind_dir          String
+  humidity          Float
+  precipitation_mm  Float
+  cloud             Int
+  wind_speed_kmh    Float
+  pressure          Float
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  biometric_post      BiometricPosts?    @relation(fields: [biometric_post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  air_quality_weather AirQualityWeather?
 }
 
 model Skills {

@@ -20,12 +20,23 @@ import VolunteersRequests from "~/app/_components/VolunteersRequests";
 import { useGlobalContext } from "~/app/state/globalContext";
 import { type RouterOutputs } from "~/server/api/root";
 import { api } from "~/trpc/react";
+import VolunteerAssistence from "./VolunteerAssistence";
 type Volunteer = RouterOutputs["volunteer"]["list"][0];
 //=>
 export default function VolunteerList() {
   const genders = api.person.listGenders.useQuery();
-  const  lista = api.volunteer.list.useQuery();
+  const [search, setSearch] = useState("");
+  const lista = api.volunteer.list.useQuery({
+    search,
+  });
   const careers = api.career.list.useQuery();
+  const finishVolunteer = api.volunteer.finishVolunteer.useMutation({
+    onSuccess() {
+      void lista.refetch();
+      void global?.messageApi.success("Evaluado correctamente");
+    },
+  });
+
   const assignCode = api.volunteer.assignCode.useMutation({
     onSuccess() {
       void lista.refetch();
@@ -68,7 +79,7 @@ export default function VolunteerList() {
       render(_, row) {
         return (
           <Typography.Text>
-            {row.user.person?.name ?? ""}{" "}{row.user.person?.f_lastname ?? ""}{" "}
+            {row.user.person?.name ?? ""} {row.user.person?.f_lastname ?? ""}{" "}
             {row.user.person?.m_lastname ?? ""}
           </Typography.Text>
         );
@@ -196,7 +207,7 @@ export default function VolunteerList() {
       },
     },
     {
-      title: "Miembro desde",
+      title: "Estado",
       dataIndex: "createdAt",
       key: "createdAt",
       width: 100,
@@ -204,9 +215,21 @@ export default function VolunteerList() {
       sorter: (a, b) => dayjs(a.created_at).unix() - dayjs(b.created_at).unix(),
       render: (_: unknown, volunteer: Volunteer) => {
         return (
-          <Typography.Text>
-            {dayjs(volunteer.created_at).format("DD/MM/YYYY")}
-          </Typography.Text>
+          <div>
+            <Typography.Text>
+              Miembro desde: {dayjs(volunteer.created_at).format("DD/MM/YYYY")}
+            </Typography.Text>
+            <Tag color={volunteer.status === "ACTIVE" ? "green" : "red"}>
+              {volunteer.status === "ACTIVE" ? "Activo" : "Inactivo"}
+            </Tag>
+            <Tag color={volunteer.user.userType === "GUEST" ? "red" : "green"}>
+              {volunteer.user.userType === "VOLUNTEER"
+                ? "Voluntario"
+                : volunteer.user.userType === "ADMIN"
+                  ? "Administrador"
+                  : "Invitado"}
+            </Tag>
+          </div>
         );
       },
     },
@@ -220,16 +243,31 @@ export default function VolunteerList() {
             <Button type="primary" size="small">
               Projectos
             </Button>
-            <Button type="primary" size="small">
+            <Button type="primary" size="small"
+              onClick={() => {
+                setModalAsistencia(true);
+                setSelectedVolunteerId(volunteer.id);
+              }}
+            >
               Asistencia
             </Button>
-            <Popconfirm
-              title={`¿Estas seguro de finalizar la pasantia de ${volunteer.user.person.name ?? ""}?`}
-            >
-              <Button type="primary" danger size="small">
-                Finalizar
-              </Button>
-            </Popconfirm>
+            {volunteer.user.userType !== "GUEST" && (
+              <Popconfirm
+                title={`¿Estas seguro de finalizar la pasantia de ${volunteer.user.person.name ?? ""}?`}
+                onConfirm={() => {
+                  void finishVolunteer.mutateAsync(volunteer.id);
+                }}
+              >
+                <Button
+                  loading={finishVolunteer.isPending}
+                  type="primary"
+                  danger
+                  size="small"
+                >
+                  Finalizar
+                </Button>
+              </Popconfirm>
+            )}
           </div>
         );
       },
@@ -237,9 +275,21 @@ export default function VolunteerList() {
   ];
   const [modalProcedence, setModalProcedence] = useState(false);
   const [modalCareers, setModalCareers] = useState(false);
+  const [modalAsistencia, setModalAsistencia] = useState(false);
+  const [selectedVolunteerId, setSelectedVolunteerId] = useState<string>();
   return (
     // <div className="tw-p-4 tw-h-screen ">
-      <>
+    <>
+      <Modal
+        title="Asistencia"
+        open={modalAsistencia}
+        onCancel={() => setModalAsistencia(false)}
+        footer={null}
+        width={1200}
+        destroyOnClose
+      >
+        {selectedVolunteerId && <VolunteerAssistence id={selectedVolunteerId} />}
+      </Modal>
       <Modal
         title="Procedencia"
         open={modalProcedence}
@@ -281,6 +331,12 @@ export default function VolunteerList() {
         size="small"
       >
         <div className="tw-overflow-auto">
+          <Input.Search
+            size="small"
+            placeholder="Buscar por nombre o contacto..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
           <Table
             size="small"
             pagination={false}
@@ -293,7 +349,6 @@ export default function VolunteerList() {
           />
         </div>
       </Card>
-    </>  
-    
+    </>
   );
 }
