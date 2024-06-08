@@ -1,5 +1,5 @@
 'use client'
-import { Card, Spin } from "antd";
+import { Card } from "antd";
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from "react";
 import { api } from "~/trpc/react";

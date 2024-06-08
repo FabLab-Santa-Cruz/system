@@ -6,7 +6,7 @@ export default async function Home() {
   return (
     <div className="tw-flex tw-h-screen tw-w-full tw-items-center tw-justify-center">
       <div className="tw-text-center">
-        En construccion
+        En construccion, Holaaaaaaaa
         <div className="tw-text-center tw-flex tw-flex-col">
           {session?.user?.name && <p>Bienvenido {session.user.name}</p>}
           {session?.user?.name ? (
