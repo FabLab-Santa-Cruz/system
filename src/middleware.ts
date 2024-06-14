@@ -18,7 +18,7 @@ export async function middleware(request: NextRequest) {
 				secret: process.env.NEXTAUTH_SECRET ?? "",
 			})) as extendedUser;
 		} catch (error) {
-			return Response.redirect(new URL("/login", request.url));
+			return Response.redirect(new URL("/", request.url));
 		}
 	}
 	/**

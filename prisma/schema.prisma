@@ -250,22 +250,26 @@ model Careers {
 }
 
 model Volunteers {
-  id                     String                @id @default(cuid())
+  id               String           @id @default(cuid())
   ///Recomended to use the CI of the person
-  biometric_id           String?               @unique
+  biometric_id     String?          @unique
   // person_id              String?               @unique
   // person                 Persons?              @relation(fields: [person_id], references: [id])
-  user_id                String                @unique
-  user                   User                  @relation(fields: [user_id], references: [id])
-  skills                 Skills[]
-  created_at             DateTime              @default(now())
-  updated_at             DateTime              @updatedAt
-  status                 VolunteerStatus       @default(ACTIVE)
-  biometric_posts        BiometricPosts[]
-  procedence             Procedence[]
-  careers                Careers[]
-  projects               Projects[]
-  project_tasks          ProjectTasks[]
+  user_id          String           @unique
+  user             User             @relation(fields: [user_id], references: [id])
+  skills           Skills[]
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+  status           VolunteerStatus  @default(ACTIVE)
+  biometric_posts  BiometricPosts[]
+  procedence       Procedence[]
+  careers          Careers[]
+  projects         Projects[]       @relation(name: "ProjectWorker")
+  created_projects Projects[]       @relation(name: "ProjectCreator")
+
+  project_tasks         ProjectTasks[] @relation(name: "ProjectTaskWorker")
+  created_project_tasks ProjectTasks[] @relation(name: "ProjectTaskCreator")
+
   micro_tasks            MicroTasks[]
   project_tasks_comments ProjectTaskComments[]
   tracking_dates         TrackingDates[]
@@ -360,15 +364,21 @@ model VolunteerApplication {
 }
 
 model Projects {
-  id            String          @id @default(cuid())
-  name          String
-  files         Files[]         @relation(name: "ProjectFiles")
-  images        Files[]         @relation(name: "ProjectImages")
-  status        Status          @default(IN_PROGRESS)
-  workers       Volunteers[]
+  id         String      @id @default(cuid())
+  name       String
+  files      Files[]     @relation(name: "ProjectFiles")
+  images     Files[]     @relation(name: "ProjectImages")
+  status     Status      @default(IN_PROGRESS)
+  creator_id String?
+  creator    Volunteers? @relation(fields: [creator_id], references: [id], name: "ProjectCreator", onDelete: SetNull, onUpdate: NoAction)
+
+  deleted_at    DateTime?
+  workers       Volunteers[]    @relation(name: "ProjectWorker")
   created_at    DateTime        @default(now())
   updated_at    DateTime        @updatedAt
   project_dates ProjectsDates[]
+
+  project_tasks ProjectTasks[]
 }
 
 model ProjectsDates {
@@ -398,13 +408,24 @@ model ProjectTasks {
   name        String
   description String?
   files       Files[]
-  assigned_to Volunteers[]
+  assigned_to Volunteers[] @relation(name: "ProjectTaskWorker")
 
   priority Int    @default(0) @db.SmallInt
   status   Status @default(IN_PROGRESS)
 
   comments           ProjectTaskComments[]
   project_task_dates ProjectsTaskDates[]
+
+  created_by_id String
+
+  project_id String 
+  project    Projects @relation(fields: [project_id], references: [id])
+
+  deleted_at DateTime?
+  created_by Volunteers @relation(fields: [created_by_id], references: [id], name: "ProjectTaskCreator")
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model ProjectsTaskDates {

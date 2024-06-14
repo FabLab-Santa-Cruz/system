@@ -15,7 +15,10 @@ export default {
       },
 			fontFamily: {
 				sans: ["var(--font-sans)", ...fontFamily.sans],
-			},
+      },
+      backgroundImage: {
+        'portada-fablab' : "url('/pictures/portada-fablab.webp')",
+      }
 		},
 	},
 	plugins: [],

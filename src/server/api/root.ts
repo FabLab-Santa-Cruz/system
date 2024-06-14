@@ -8,6 +8,7 @@ import { volunteersRouter } from "./routers/volunteers";
 import { personsRouter } from "./routers/persons";
 import { profileRouter } from "./routers/profile";
 import { careerRouter } from "./routers/careers";
+import { projectsRouter} from "./routers/projects";
 
 
 
@@ -23,7 +24,8 @@ export const appRouter = createTRPCRouter({
   category: categoriesRouter,
   volunteer: volunteersRouter,
   person: personsRouter,
-  career: careerRouter
+  career: careerRouter,
+  projects: projectsRouter
 });
 export type RouterOutputs = inferRouterOutputs<AppRouter>;
 export type InferAPI = inferReactQueryProcedureOptions<AppRouter>

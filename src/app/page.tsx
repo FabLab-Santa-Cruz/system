@@ -1,29 +1,17 @@
-import { getServerAuthSession } from "~/server/auth";
-
+import TopBar from "~/app/_components/Intro/TopBar";
+import WhatsAFab from "~/app/_components/Intro/WhatsAFab";
+import ContactUS from "~/app/_components/Intro/ContactUS";
 export default async function Home() {
-  const session = await getServerAuthSession();
-
   return (
-    <div className="tw-flex tw-h-screen tw-w-full tw-items-center tw-justify-center">
-      <div className="tw-text-center">
-        En construccion, Holaaaaaaaa
-        <div className="tw-text-center tw-flex tw-flex-col">
-          {session?.user?.name && <p>Bienvenido {session.user.name}</p>}
-          {session?.user?.name ? (
-            <a
-              className="tw-underline"
-              href="/dashboard"
-            >{`Ir al dashboard `}</a>
-          ) : (
-            <a href="/api/auth/signin">Iniciar Sesion</a>
-          )}
-          {session?.user?.name && (
-            <a className="tw-underline" href="/api/auth/signout">
-              Cerrar sesion
-            </a>
-          )}
+    <>
+      <TopBar />
+      <div className="tw-bg-portada-fablab tw-flex tw-h-screen tw-w-full tw-items-center tw-justify-center tw-bg-cover tw-bg-no-repeat">
+        <div className="tw-text-center tw-text-[40px] tw-font-bold tw-text-white ">
+          Bienvenido a FabLab Santa Cruz
         </div>
       </div>
-    </div>
+      <WhatsAFab />
+      <ContactUS />
+    </>
   );
 }
