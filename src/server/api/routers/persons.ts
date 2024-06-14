@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
 export const personsRouter = createTRPCRouter({
 	toggleDelete: protectedProcedure
 		.input(z.object({ id: z.string(), status: z.boolean() }))
@@ -253,10 +253,7 @@ export const personsRouter = createTRPCRouter({
 				where: { id: input.id },
 			});
 		}),
-	listGenders: protectedProcedure.query(({ ctx }) => {
-		if (ctx.session.user.userType !== "ADMIN") {
-			throw new Error("Unauthorized");
-		}
+	listGenders: publicProcedure.query(({ ctx }) => {
 		return ctx.db.genders.findMany();
 	}),
 });
