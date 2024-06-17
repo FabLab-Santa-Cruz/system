@@ -26,6 +26,7 @@ import { api } from "~/trpc/react";
 import Image from "next/image";
 import { WithUrl } from "~/utils/withUrl";
 import { EyeFilled } from "@ant-design/icons";
+import { env } from "~/env";
 type Person = RouterOutputs["person"]["list"][0];
 
 //=>
@@ -78,7 +79,7 @@ export default function PersonList() {
 								</div>
 								<Image
 									quality={20}
-									src={WithUrl(row.images[0]?.key ?? "")}
+									src={WithUrl(row.images[0]?.key) ?? env.NEXT_PUBLIC_DEFAULT_NO_IMAGE}
 									alt="avatar"
 									width={50}
 									height={50}
@@ -297,7 +298,7 @@ export default function PersonList() {
 								return (
 									<AntImage
 										key={v.key}
-										src={WithUrl(v.key ?? "")}
+										src={WithUrl(v.key) ?? env.NEXT_PUBLIC_DEFAULT_NO_IMAGE}
 										alt="avatar"
 										width={50}
 										height={50}

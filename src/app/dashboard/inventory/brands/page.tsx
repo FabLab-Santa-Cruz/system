@@ -10,6 +10,8 @@ import { WithUrl } from "~/utils/withUrl";
 import { useState } from "react";
 import CreateBrand from "./UpsertBrands";
 import UpsertBrands from "./UpsertBrands";
+import { env } from "~/env";
+
 type Brand = RouterOutputs["brand"]["list"][0];
 export default function Marcas() {
 	const brands = api.brand.list.useQuery();
@@ -31,7 +33,7 @@ export default function Marcas() {
 			render: (image: string) => {
 				if (image) {
 					return (
-						<Image alt="image" src={WithUrl(image)} width={50} height={50} />
+						<Image alt="image" src={WithUrl(image) ?? env.NEXT_PUBLIC_DEFAULT_NO_IMAGE} width={50} height={50} />
 					);
 				}
 				return "N/A";

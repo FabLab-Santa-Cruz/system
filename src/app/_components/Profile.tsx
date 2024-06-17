@@ -15,6 +15,7 @@ import FormPersons, { type FormPersonOutput } from "./FormPersons";
 import { useState } from "react";
 import { WithUrl } from "~/utils/withUrl";
 import { useGlobalContext } from "../state/globalContext";
+import { env } from "~/env";
 export default function ProfileDiscord() {
 	const profile = api.profile.profile.useQuery();
 	const itemsDiscord: DescriptionsProps["items"] = [
@@ -146,7 +147,7 @@ export default function ProfileDiscord() {
 						<div className="tw-flex tw-gap-2">
 							{profile.data.person.images.map((v) => (
 								<div key={v.id}>
-									<Image alt="image" src={WithUrl(v.key)} width={50} />
+									<Image alt="image" src={WithUrl(v.key) ?? env.NEXT_PUBLIC_DEFAULT_NO_IMAGE} width={50} />
 								</div>
 							))}
 						</div>
