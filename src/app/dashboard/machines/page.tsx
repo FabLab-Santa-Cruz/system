@@ -328,6 +328,7 @@ export default function MachinesPage() {
       }
     },
   });
+  const activeMicroTaskDates = api.projects.activeMicroTaskDates.useQuery();
   return (
     <div className="tw-w-full tw-px-10 tw-pt-2">
       <Modal
@@ -358,8 +359,6 @@ export default function MachinesPage() {
             });
           }}
         />
-          
-        
       </Modal>
       <Modal
         open={modalMantenimiento}
@@ -388,6 +387,7 @@ export default function MachinesPage() {
                 cellRender={(current, info) => {
                   // Iterar para chequear si la fecha esta dentro de un mantenimiento
                   let isDateInMainteneance = false;
+                  let isOccupied = false;
                   selectedMachine?.machine_mainteneance.forEach(
                     (maintenance) => {
                       const start = dayjs.utc(maintenance.start_date);
@@ -398,12 +398,38 @@ export default function MachinesPage() {
                       }
                     },
                   );
+                  activeMicroTaskDates.data?.forEach((d) => {
+                    if (d.used_machine_id === selectedMachine?.id) {
+                      if (
+                        dayjs
+                          .utc(current)
+                          .isBetween(
+                            dayjs.utc(d.tracking_date.start_date),
+                            dayjs.utc(d.tracking_date.end_date),
+                            "day",
+                            "[]",
+                          )
+                      ) {
+                        isOccupied = true;
+                      }
+                    }
+                  });
+
                   if (isDateInMainteneance) {
                     return (
                       <Tooltip
                         title={`Esta fecha se encuentra dentro de un mantenimiento`}
                       >
                         <span style={{ color: "red" }}>{info.originNode}</span>
+                      </Tooltip>
+                    );
+                  }
+                  if(isOccupied) {
+                    return (
+                      <Tooltip
+                        title={`Esta fecha se encuentra dentro de una tarea`}
+                      >
+                        <span style={{ color: "yellow" }}>{info.originNode}</span>
                       </Tooltip>
                     );
                   }

@@ -34,7 +34,7 @@ export default function ProjectTasks({ project }: { project: TProject }) {
       dataIndex: "created_at",
       key: "created_at",
       render: (_: unknown, row) => {
-        return <Tag>{dayjs.utc(row.created_at).format("DD/MM/YYYY")}</Tag>;
+        return <Tag>{dayjs(row.created_at).format("DD/MM/YYYY HH:mm")}</Tag>;
       },
       width: 100,
     },

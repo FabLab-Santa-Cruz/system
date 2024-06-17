@@ -276,7 +276,7 @@ model Volunteers {
   project_tasks_comments ProjectTaskComments[]
   tracking_dates         TrackingDates[]
   machine_mainteneance   MachineMaintenance[]
-  machines_created               Machines[] 
+  machines_created       Machines[]
 }
 
 model Persons {
@@ -455,22 +455,21 @@ model ProjectTaskComments {
 }
 
 model MicroTasks {
-  id                      String                   @id @default(cuid())
-  name                    String
-  files                   Files[]
-  task_id                 String
-  task                    ProjectTasks             @relation(fields: [task_id], references: [id])
-  is_completed            Boolean                  @default(false)
-  assigned_to             Volunteers[]             @relation(name: "MicroTaskWorker")
-  created_by_id           String
-  created_by              Volunteers               @relation(fields: [created_by_id], references: [id], name: "MicroTaskCreator")
-  created_at              DateTime                 @default(now())
-  updated_at              DateTime                 @updatedAt
-  deleted_at              DateTime?
+  id               String           @id @default(cuid())
+  name             String
+  files            Files[]
+  task_id          String
+  task             ProjectTasks     @relation(fields: [task_id], references: [id])
+  is_completed     Boolean          @default(false)
+  assigned_to      Volunteers[]     @relation(name: "MicroTaskWorker")
+  created_by_id    String
+  created_by       Volunteers       @relation(fields: [created_by_id], references: [id], name: "MicroTaskCreator")
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+  deleted_at       DateTime?
   /// A vague description of what the microtask is about
-  description             String?
-  micro_task_dates        MicroTaskDates[]
-  machine_usage_microtask MachineUsageMicroTasks[]
+  description      String?
+  micro_task_dates MicroTaskDates[]
 }
 
 model MicroTaskDates {
@@ -479,23 +478,22 @@ model MicroTaskDates {
   micro_task    MicroTasks    @relation(fields: [micro_task_id], references: [id])
   tracking_id   String
   tracking_date TrackingDates @relation(fields: [tracking_id], references: [id])
-  active        Boolean       @default(true)
-  created_at    DateTime      @default(now())
-  updated_at    DateTime      @updatedAt
+
+  used_machine_id String?
+  used_machine    Machines? @relation(fields: [used_machine_id], references: [id])
+
+  active Boolean @default(true)
+
+  
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 enum MachineStatus {
   USABLE
   ///En reparacion, en el calendario deja de ser programable su uso
-  IN_REPAIR  
-}
-
-model MachineUsageMicroTasks {
-  id            String     @id @default(cuid())
-  machine_id    String
-  machine       Machines   @relation(fields: [machine_id], references: [id])
-  micro_task    MicroTasks @relation(fields: [micro_task_id], references: [id])
-  micro_task_id String
+  IN_REPAIR
 }
 
 ///Maquinas usables del fablab, puede ser una impresora 3d, puede ser otra maquina.
@@ -516,20 +514,21 @@ model Machines {
   created_by    Volunteers @relation(fields: [created_by_id], references: [id])
 
   deleted_at DateTime?
-  files                   Files[]
-  machine_usage_microtask MachineUsageMicroTasks[]
-  machine_mainteneance    MachineMaintenance[]
+  files      Files[]
+
+  machine_in_microtasks MicroTaskDates[]
+  machine_mainteneance  MachineMaintenance[]
 }
 
 model MachineMaintenance {
-  id            String        @id @default(cuid())
+  id            String     @id @default(cuid())
   machine_id    String
-  machine       Machines      @relation(fields: [machine_id], references: [id])
+  machine       Machines   @relation(fields: [machine_id], references: [id])
   description   String?
   start_date    DateTime
   end_date      DateTime
   created_by_id String
-  created_by    Volunteers    @relation(fields: [created_by_id], references: [id])
-  created_at    DateTime      @default(now())
-  updated_at    DateTime      @updatedAt
+  created_by    Volunteers @relation(fields: [created_by_id], references: [id])
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
 }

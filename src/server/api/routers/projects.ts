@@ -1,3 +1,4 @@
+import { MicroTaskDates } from './../../../../node_modules/.prisma/client/index.d';
 import { TRPCClientError } from "@trpc/client";
 import { z } from "zod";
 
@@ -8,6 +9,78 @@ import {
 } from "~/server/api/trpc";
 
 export const projectsRouter = createTRPCRouter({
+  deleteMicroTask: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.microTasks.update({
+        where: { id: input.id },
+        data: { deleted_at: new Date() },
+      });
+    }),
+
+  activeMicroTaskDates: protectedProcedure
+    .query(async ({ ctx }) => {
+      return await ctx.db.microTaskDates.findMany({
+        // Active and end date from tracking is not happened
+        where: {
+          active: true,
+          tracking_date: {
+            end_date: {
+              lt: new Date(),
+            }
+          }
+        },
+        include: {
+          tracking_date: true,
+        },
+        orderBy: { created_at: "desc" },
+      });
+    }),
+
+  createMicroTaskDate: protectedProcedure
+    .input(
+      z.object({
+        microtask_id: z.string(), 
+        machine_id: z.string().nullish(),
+        start_date: z.string().date(),
+        end_date: z.string().date(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const volunteer = await ctx.db.volunteers.findFirst({
+        where: { user_id: ctx.session.user.id },
+      });
+
+      if (!volunteer) {
+        throw new TRPCClientError("No se encontro ese voluntario");
+      }
+      //Creates a tracking first
+      const track = await ctx.db.trackingDates.create({
+        data: {
+          volunteer_id: volunteer.id,
+          start_date: new Date(input.start_date),
+          end_date: new Date(input.end_date),
+        },
+      });
+      //All the other project dates goes to inactive
+      await ctx.db.microTaskDates.updateMany({
+        where: {
+          micro_task_id: input.microtask_id,
+        },
+        data: { active: false },
+      });
+      return await ctx.db.microTaskDates.create({
+        data: {
+          micro_task_id: input.microtask_id,
+          used_machine_id: input.machine_id,
+          tracking_id: track.id,
+          active: true,
+        },
+      });
+    }),
+
+  //Make microtask
+
   assignVolunteersToMicroTask: protectedProcedure
     .input(
       z.object({
@@ -84,13 +157,12 @@ export const projectsRouter = createTRPCRouter({
     .input(z.object({ project_task_id: z.string() }))
     .query(async ({ ctx, input }) => {
       return await ctx.db.microTasks.findMany({
-
-
         include: {
           files: true,
-          machine_usage_microtask: {
+          micro_task_dates: {
             include: {
-              machine: {
+              tracking_date: true,
+              used_machine: {
                 include: {
                   brand: true,
                 },
@@ -118,7 +190,9 @@ export const projectsRouter = createTRPCRouter({
         },
         where: {
           task_id: input.project_task_id,
+          deleted_at: null,
         },
+        orderBy: { created_at: "desc" },
       });
     }),
 
