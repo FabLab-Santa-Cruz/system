@@ -190,7 +190,7 @@ export default function MachinesPage() {
 
   const onFinish = (
     values: Pick<TMachine, "id" | "name" | "description" | "brand_id"> & {
-      image: BasicUpload[];
+      image: BasicUpload[] | undefined;
     },
   ) => {
     console.log(values.image);
@@ -199,7 +199,7 @@ export default function MachinesPage() {
       brandId: values.brand_id,
       name: values.name,
       description: values.description,
-      image: values.image.at(0)?.key ?? null,
+      image: values.image?.at(0)?.key ?? null,
     });
   };
   const context = useGlobalContext();
