@@ -40,6 +40,7 @@ export const generatePresignedUrlUpload = async ({
     date.setSeconds(expires);
     poilicy.setExpires(date);
   };
+  
   if (maxSize) poilicy.setContentLengthRange(0, maxSize);
   if (contentDisposition) poilicy.setContentDisposition(contentDisposition);
   if (contentType) poilicy.setContentType(contentType);

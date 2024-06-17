@@ -8,6 +8,134 @@ import {
 } from "~/server/api/trpc";
 
 export const projectsRouter = createTRPCRouter({
+  assignVolunteersToMicroTask: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        volunteers: z.array(z.string()),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.microTasks.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          assigned_to: {
+            set: input.volunteers.map((v) => ({ id: v })),
+          },
+        },
+      });
+    }),
+
+  toggleCompleteMicroTask: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const status = await ctx.db.microTasks.findUnique({
+        where: {
+          id: input.id,
+        },
+        select: {
+          id: true,
+          is_completed: true,
+        },
+      });
+
+      return await ctx.db.microTasks.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          is_completed: !status?.is_completed,
+        },
+      });
+    }),
+
+  createMicroTask: protectedProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        description: z.string().nullish(),
+        task_id: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const volunteer = await ctx.db.volunteers.findUnique({
+        where: { user_id: ctx.session.user.id },
+      });
+
+      if (!volunteer) {
+        throw new TRPCClientError("No se encontro ese voluntario");
+      }
+
+      const created_by_id = volunteer.id;
+
+      return await ctx.db.microTasks.create({
+        data: {
+          name: input.name,
+          description: input.description,
+          task_id: input.task_id,
+          created_by_id,
+        },
+      });
+    }),
+
+  getMicroTasks: protectedProcedure
+    .input(z.object({ project_task_id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.microTasks.findMany({
+
+
+        include: {
+          files: true,
+          machine_usage_microtask: {
+            include: {
+              machine: {
+                include: {
+                  brand: true,
+                },
+              },
+            },
+          },
+          assigned_to: {
+            include: {
+              user: {
+                include: {
+                  person: true,
+                },
+              },
+            },
+          },
+          created_by: {
+            include: {
+              user: {
+                include: {
+                  person: true,
+                },
+              },
+            },
+          },
+        },
+        where: {
+          task_id: input.project_task_id,
+        },
+      });
+    }),
+
+  updateProjectStatus: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        status: z.enum(["IN_PROGRESS", "COMPLETED", "CANCELED"]),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.projects.update({
+        where: { id: input.id },
+        data: { status: input.status },
+      });
+    }),
+
   deleteTask: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
@@ -245,12 +373,11 @@ export const projectsRouter = createTRPCRouter({
             include: {
               user: true,
             },
-          }
+          },
         },
         where: {
           project_id: input.id,
           deleted_at: null,
-
         },
       });
     }),
@@ -330,6 +457,7 @@ export const projectsRouter = createTRPCRouter({
             };
 
       return ctx.db.projects.findMany({
+        orderBy: { created_at: "desc" },
         include: {
           creator: {
             include: {

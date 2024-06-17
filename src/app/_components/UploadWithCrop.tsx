@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Upload } from "antd";
 import type { UploadFile, UploadProps } from "antd";
 import ImgCrop from "antd-img-crop";
@@ -29,15 +29,16 @@ export const UploadWithCrop = ({
 			uid: v.id ?? v.key,
 			name: v.key,
 			status: "done",
-			url: WithUrl(v.key),
+			url: WithUrl(v.key)!,
 		})) ?? [],
-	);
-	const [uploadedFiles, setUploadedFiles] = useState<
-		{
-			id?: string;
-			key: string;
-		}[]
-	>(value ?? []);
+  );
+  const filesMap = useRef<{ id?: string; key: string }[]>(value ?? []);
+	// const [uploadedFiles, setUploadedFiles] = useState<
+	// 	{
+	// 		id?: string;
+	// 		key: string;
+	// 	}[]
+	// >(value ?? []);
 	const onPreview = async (file: UploadFile) => {
 		let src = file.url!;
 		if (!src) {
@@ -53,20 +54,22 @@ export const UploadWithCrop = ({
 		imgWindow?.document.write(image.outerHTML);
 	};
 	const uapi = api.upload.getUrl.useMutation();
-	const handleOnChange: UploadProps["onChange"] = (props) => {
+  const handleOnChange: UploadProps["onChange"] = (props) => {
+    
+    
 		setFileList(props.fileList);
 	};
-  useEffect(() => {
-			onChange?.(uploadedFiles);
-			// eslint-disable-next-line react-hooks/exhaustive-deps
-		}, [uploadedFiles]);
+  
 	return (
 		<ImgCrop rotationSlider>
 			<Upload
-				onRemove={(v) => {
-					setUploadedFiles(uploadedFiles.filter((f) => f.id !== v.uid));
-					setFileList(fileList.filter((f) => f.uid !== v.uid));
-				}}
+        onRemove={(v) => {
+          setFileList((prev) => prev.filter((f) => f.uid !== v.uid));
+          filesMap.current = filesMap.current.filter((f) => f.id !== v.uid);
+          filesMap.current = filesMap.current.filter((f) => f.key !== v.uid && f.id === undefined);
+          onChange?.(filesMap.current);
+          console.log(filesMap.current)
+        }}
 				onChange={handleOnChange}
 				maxCount={maxFiles}
 				accept="image/*"
@@ -95,14 +98,22 @@ export const UploadWithCrop = ({
 					};
 					try {
 						await axios.post(data.postURL, formData, config);
-						const finalList = [
-							...uploadedFiles,
-							{
-								id: fileOptions.uid,
-								key: `${data.formData.key}`,
-							},
-						];
-						setUploadedFiles(finalList);
+						// const finalList = [
+						// 	...uploadedFiles,
+						// 	{
+						// 		id: fileOptions.uid,
+						// 		key: `${data.formData.key}`,
+						// 	},
+						// ];
+            filesMap.current = [
+              ...filesMap.current,
+              {
+                id: fileOptions.uid,
+                key: `${data.formData.key}`,
+              },
+            ]
+            onChange?.(filesMap.current);
+            
 
 						if (onSuccess) onSuccess(data.formData.Key);
 					} catch (error) {

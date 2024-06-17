@@ -40,6 +40,7 @@ export const env = createEnv({
    */
   client: {
     NEXT_PUBLIC_STORAGE_PATH: z.string(),
+    NEXT_PUBLIC_DEFAULT_NO_IMAGE: z.string(),
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
   },
 
@@ -48,6 +49,7 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
+    NEXT_PUBLIC_DEFAULT_NO_IMAGE: process.env.NEXT_PUBLIC_DEFAULT_NO_IMAGE,
     FABLAB_COORDINATES: process.env.FABLAB_COORDINATES,
     WEATHER_API_URL: process.env.WEATHER_API_URL,
     WEATHER_API_KEY: process.env.WEATHER_API_KEY,

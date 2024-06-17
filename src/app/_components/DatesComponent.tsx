@@ -9,7 +9,7 @@ dayjs.extend(utc);
 
 import React from "react";
 import { type RouterOutputs } from "~/server/api/root";
-type ProjectsDates = Omit<
+type TProjectsDates = Omit<
   RouterOutputs["projects"]["myProjects"][0]["project_dates"][0],
   "project_id"
 >;
@@ -24,7 +24,7 @@ export default function DatesComponent({
     start_date: dayjs.Dayjs | undefined;
     end_date: dayjs.Dayjs | undefined;
   }) => void;
-  projectDates: ProjectsDates[];
+  projectDates: TProjectsDates[];
   upperDate?: dayjs.Dayjs;
   lowerDate?: dayjs.Dayjs;
 }) {
@@ -32,20 +32,22 @@ export default function DatesComponent({
     start_date: dayjs.Dayjs | undefined;
     end_date: dayjs.Dayjs | undefined;
   }>()[0];
-  const projectDatesColumns: ColumnProps<ProjectsDates>[] = [
+  const projectDatesColumns: ColumnProps<TProjectsDates>[] = [
     {
       title: "Fecha de inicio",
       key: "start_date",
-      render: (_: unknown, project: ProjectsDates) => {
+      render: (_: unknown, project: TProjectsDates) => {
         return (
-          <>{dayjs.utc(project.tracking_date.start_date).format("DD/MM/YYYY")}</>
+          <>
+            {dayjs.utc(project.tracking_date.start_date).format("DD/MM/YYYY")}
+          </>
         );
       },
     },
     {
       title: "Fecha de fin",
       key: "end_date",
-      render: (_: unknown, project: ProjectsDates) => {
+      render: (_: unknown, project: TProjectsDates) => {
         return (
           <>{dayjs.utc(project.tracking_date.end_date).format("DD/MM/YYYY")}</>
         );
@@ -54,7 +56,7 @@ export default function DatesComponent({
     {
       title: "Dias",
       key: "days",
-      render: (_: unknown, project: ProjectsDates) => {
+      render: (_: unknown, project: TProjectsDates) => {
         // Calculamos los dias
         const start = dayjs.utc(project.tracking_date.start_date);
         const end = dayjs.utc(project.tracking_date.end_date);
@@ -65,7 +67,7 @@ export default function DatesComponent({
     {
       title: "Estado",
       key: "state",
-      render: (_: unknown, project: ProjectsDates) => {
+      render: (_: unknown, project: TProjectsDates) => {
         return (
           <Tag color={project.active ? "green" : "red"}>
             {project.active ? "Activo" : "Inactivo"}
@@ -130,7 +132,18 @@ export default function DatesComponent({
             </Space.Compact>
           </Form>
         </div>
-        <Table columns={projectDatesColumns} dataSource={projectDates ?? []} />
+        <Table
+          rowKey="id"
+          size="small"
+          pagination={{
+            defaultCurrent: 1,
+            defaultPageSize: 10,
+            total: projectDates.length,
+            showTotal: (total) => `Total ${total} cambios de fecha`,
+          }}
+          columns={projectDatesColumns}
+          dataSource={projectDates ?? []}
+        />
       </div>
     </div>
   );

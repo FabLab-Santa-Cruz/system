@@ -23,9 +23,9 @@ import { useGlobalContext } from "~/app/state/globalContext";
 import { type RouterOutputs } from "~/server/api/root";
 import { api } from "~/trpc/react";
 
-
 type Projects = RouterOutputs["projects"]["myProjects"][0];
 
+type TProjectStatus = Projects["status"];
 
 export default function Projects() {
   const [searchParamsProjects, setSearchParamsProjects] = useState({
@@ -56,57 +56,22 @@ export default function Projects() {
       void projects.refetch();
     },
   });
-
-  const [modal, setModal] = useState(false);
+  const updateProjectStatus = api.projects.updateProjectStatus.useMutation({
+    onSuccess: () => {
+      void projects.refetch();
+    },
+  });
 
   const columns: ColumnProps<Projects>[] = [
     {
-      title: "Nombre",
-      dataIndex: "name",
-      key: "name",
-    },
-    {
       title: "Creado",
-      key : "createdAt",
+      key: "createdAt",
       render: (_: unknown, project: Projects) => {
-        return <>{dayjs(project.created_at).format("DD/MM/YYYY")}</>;
-      },
-      
-    },
-    {
-      title: "Fechas",
-      key: "date",
-      render: (_: unknown, project: Projects) => {
-        const lastTrackingDate = project.project_dates.find(
-          (date) => date.active,
-        );
-        if (!lastTrackingDate) return <>No hay fechas</>;
         return (
-          <>
-            <Tooltip title="Fecha de inicio">
-              <Tag color="blue">
-                {dayjs(lastTrackingDate.tracking_date.start_date).format(
-                  "DD/MM/YYYY",
-                )}
-              </Tag>
-            </Tooltip>
-            <Tooltip title="Fecha de fin">
-              <Tag color="green">
-                {dayjs(lastTrackingDate.tracking_date.end_date).format(
-                  "DD/MM/YYYY",
-                )}
-              </Tag>
-            </Tooltip>
-          </>
+          <Tag>{dayjs(project.created_at).format("DD/MM/YYYY HH:mm")}</Tag>
         );
       },
-    },
-    {
-      title: "Estado",
-      key: "state",
-      render: (_: unknown, project: Projects) => {
-        return <>{project.status}</>;
-      },
+      width: 100,
     },
     {
       title: "Dueño",
@@ -119,11 +84,128 @@ export default function Projects() {
           </>
         );
       },
+      width: 100,
     },
+    {
+      title: "Nombre",
+      dataIndex: "name",
+      key: "name",
+    },
+
+    {
+      title: "Fechas",
+      key: "date",
+      render: (_: unknown, project: Projects) => {
+        const lastTrackingDate = project.project_dates.find(
+          (date) => date.active,
+        );
+        const click = () => {
+          setSelectedProject(project);
+          setModalFechas(true);
+        };
+        if (!lastTrackingDate)
+          return (
+            <Button size="small" onClick={click}>
+              No hay fechas
+            </Button>
+          );
+        return (
+          <>
+            <Space.Compact>
+              <Tooltip title="Fecha de inicio">
+                <Button size="small" onClick={click}>
+                  {dayjs(lastTrackingDate.tracking_date.start_date).format(
+                    "DD/MM/YYYY",
+                  )}
+                </Button>
+              </Tooltip>
+
+              <Tooltip title="Fecha de fin">
+                <Button size="small" onClick={click}>
+                  {dayjs(lastTrackingDate.tracking_date.end_date).format(
+                    "DD/MM/YYYY",
+                  )}
+                </Button>
+              </Tooltip>
+            </Space.Compact>
+          </>
+        );
+      },
+    },
+    {
+      title: "Estado",
+      key: "status",
+      filters: [
+        {
+          text: "En progreso",
+          value: "IN_PROGRESS",
+        },
+        {
+          text: "Completado",
+          value: "COMPLETED",
+        },
+        {
+          text: "Cancelado",
+          value: "CANCELED",
+        },
+      ],
+      onFilter: (value, record: Projects) => {
+        return record.status === value;
+      },
+      render: (_: unknown, project: Projects) => {
+        const mapStatus: Record<TProjectStatus, string> = {
+          IN_PROGRESS: "En progreso",
+          COMPLETED: "Completado",
+          CANCELED: "Cancelado",
+        };
+        return (
+          <Select
+            loading={updateProjectStatus.isPending}
+            size="small"
+            defaultValue={project.status}
+            options={Object.entries(mapStatus).map(([key, value]) => {
+              return {
+                label: value,
+                value: key,
+              };
+            })}
+            onChange={(value) => {
+              updateProjectStatus.mutate({ id: project.id, status: value });
+            }}
+          />
+        );
+      },
+    },
+
     {
       title: "Trabajadores",
       key: "workers",
       render: (_: unknown, project: Projects) => {
+        return (
+          <Select
+            size="small"
+            mode="multiple"
+            allowClear
+            style={{ width: "100%" }}
+            placeholder="Selecciona voluntarios"
+            optionLabelProp="label"
+            options={volunteers.data?.map((volunteer) => {
+              return {
+                label: volunteer.user.email,
+                value: volunteer.id,
+              };
+            })}
+            defaultValue={project.workers.map((v) => v.id)}
+            loading={volunteers.isLoading || assignVolunteers.isPending}
+            onChange={async (value) => {
+              await assignVolunteers.mutateAsync({
+                id: project.id,
+                volunteers: value,
+              });
+            }}
+          />
+        );
+
         return project.workers.map((worker) => {
           return (
             <Tag key={worker.id} color="green">
@@ -139,20 +221,6 @@ export default function Projects() {
       render: (_: unknown, project: Projects) => {
         return (
           <Space.Compact>
-            <Button
-              size="small"
-              type="primary"
-              onClick={() => {
-                //setSelectedProject(project);
-                formVolunteers.setFieldValue(
-                  "volunteers",
-                  project.workers.map((v) => v.id),
-                );
-                setModal(true);
-              }}
-            >
-              Ver
-            </Button>
             {project.deleted_at ? (
               <Popconfirm
                 title="¿Desea recuperar este proyecto?"
@@ -233,18 +301,7 @@ export default function Projects() {
     await utils.projects.getTasks.invalidate();
   };
   const [formVolunteers] = Form.useForm();
-  const onFinishFormVolunteers = async (values: { volunteers: string[] }) => {
-    if (selectedProject === null) {
-      void global?.messageApi.warning("Debe seleccionar un proyecto");
-      return;
-    }
-    await assignVolunteers.mutateAsync({
-      id: selectedProject?.id,
-      volunteers: values.volunteers,
-    });
 
-    setModal(false);
-  };
   const assignVolunteers = api.projects.assignVolunteers.useMutation({
     onSuccess: () => {
       formVolunteers.resetFields();
@@ -254,117 +311,82 @@ export default function Projects() {
       console.log(e.message, "message");
     },
   });
-
+  const [modalFechas, setModalFechas] = useState(false);
   return (
-    <div className="tw-px-10 tw-pt-4">
+    <div className="tw-w-full tw-px-10 tw-pt-4">
       <Modal
-        title="Voluntarios a asignar a proyecto"
-        open={modal}
+        title="Asignar fechas"
+        open={modalFechas}
         onCancel={() => {
-          setModal(false);
+          setModalFechas(false);
         }}
-        onOk={() => {
-          formVolunteers.submit();
-        }}
+        footer={null}
       >
-        <Form form={formVolunteers} onFinish={onFinishFormVolunteers}>
-          <Form.Item name={"volunteers"}>
-            <Select
-              mode="multiple"
-              allowClear
-              style={{ width: "100%" }}
-              placeholder="Selecciona voluntarios"
-              optionLabelProp="label"
-              options={volunteers.data?.map((volunteer) => {
-                return {
-                  label: volunteer.user.email,
-                  value: volunteer.id,
-                };
-              })}
-            />
-          </Form.Item>
-        </Form>
+        {selectedProject ? (
+          <DatesComponent
+            projectDates={selectedProject.project_dates}
+            onFinish={onFinishCreateProjectDate}
+          />
+        ) : (
+          <div>
+            <p>No hay proyecto seleccionado</p>
+          </div>
+        )}
       </Modal>
-      <div className="tw-flex tw-w-full tw-gap-2">
-        <div className="tw-basis-2/3">
-          <Card title="Proyectos">
-            <div className="tw-flex">
-              <Form form={formCreateProject} onFinish={onFinishCreateProject}>
-                <Space.Compact style={{ width: "100%" }}>
-                  <Form.Item noStyle name="name">
-                    <Input placeholder="Mi primer proyecto..." />
-                  </Form.Item>
-                  <Button
-                    loading={createProject.isPending}
-                    disabled={createProject.isPending}
-                    htmlType="submit"
-                    type="primary"
-                  >
-                    Crear Proyecto
-                  </Button>
-                </Space.Compact>
-              </Form>
-            </div>
-            <Space>
-              <Input placeholder="Buscar... TODO" />
-              <Switch
-                value={searchParamsProjects.deleted}
-                onChange={(value) => {
-                  setSearchParamsProjects({
-                    ...searchParamsProjects,
-                    deleted: value,
-                  });
-                }}
-                checkedChildren="Activos"
-                unCheckedChildren="Eliminados"
-              />
-            </Space>
-            <Table
-              onRow={(record) => {
-                return {
-                  onClick: () => {
-                    setSelectedProject(record);
-                  },
-                };
+
+      <div className="tw-flex tw-w-full tw-gap-2 ">
+        <Card title="Proyectos" size="small" className="tw-w-full">
+          <div className="tw-flex tw-w-full">
+            <Form form={formCreateProject} onFinish={onFinishCreateProject}>
+              <Space.Compact style={{ width: "100%" }}>
+                <Form.Item noStyle name="name">
+                  <Input placeholder="Mi primer proyecto..." />
+                </Form.Item>
+                <Button
+                  loading={createProject.isPending}
+                  disabled={createProject.isPending}
+                  htmlType="submit"
+                  type="primary"
+                >
+                  Crear Proyecto
+                </Button>
+              </Space.Compact>
+            </Form>
+          </div>
+          <Space>
+            <Input placeholder="Buscar... TODO" />
+            <Switch
+              value={searchParamsProjects.deleted}
+              onChange={(value) => {
+                setSearchParamsProjects({
+                  ...searchParamsProjects,
+                  deleted: value,
+                });
               }}
-              columns={columns}
-              dataSource={projects.data}
+              checkedChildren="Activos"
+              unCheckedChildren="Eliminados"
             />
-          </Card>
-        </div>
-        <div className="tw-basis-1/3">
-          <Card
-            title={
-              selectedProject
-                ? `Fechas del proyecto: ${selectedProject.name}`
-                : "Fechas de proyecto"
-            }
-          >
-            {selectedProject ? (
-              <DatesComponent
-                projectDates={selectedProject.project_dates}
-                onFinish={onFinishCreateProjectDate}
-              />
-            ) : (
-              <div>
-                <p>No hay proyecto seleccionado</p>
-              </div>
-            )}
-          </Card>
-        </div>
-      </div>
-      <div className="tw-pt-2">
-        <div>
-          {selectedProject && (
-            // <TasksList project={selectedProject} />
-            <ProjectTasks project_id={selectedProject.id} />
-          )}
-        </div>
+          </Space>
+          <Table
+            loading={projects.isLoading}
+            rowKey={"id"}
+            size="small"
+            expandable={{
+              expandedRowRender: (project) => {
+                return <ProjectTasks project={project} />
+              },
+            }}
+            pagination={{
+              defaultCurrent: 1,
+              defaultPageSize: 10,
+              total: projects.data?.length,
+              showTotal: (total) => `Total ${total} proyectos`,
+            }}
+            columns={columns}
+            dataSource={projects.data}
+          />
+        </Card>
       </div>
     </div>
   );
 }
-
-
-
-

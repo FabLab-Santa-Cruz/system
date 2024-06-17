@@ -28,6 +28,7 @@ export const ADMIN_ITEMS: MenuProps["items"] = [
     getItem("Categorias", "categories"),
     getItem("Lista", "inventory_list"),
   ]),
+  getItem("Maquinas", "machines", <MdScale />),
   getItem("Voluntarios", "volunteers-list", <MdEngineering />),
   getItem("Personas", "persons-list", <MdPeople />),
   ...COMMON_ITEMS,

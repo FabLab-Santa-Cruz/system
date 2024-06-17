@@ -1,3 +1,4 @@
+import { machinesRouter } from './routers/machines';
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { brandRouter } from "./routers/brands";
 import { type inferReactQueryProcedureOptions } from "@trpc/react-query";
@@ -25,7 +26,8 @@ export const appRouter = createTRPCRouter({
   volunteer: volunteersRouter,
   person: personsRouter,
   career: careerRouter,
-  projects: projectsRouter
+  projects: projectsRouter,
+  machines: machinesRouter
 });
 export type RouterOutputs = inferRouterOutputs<AppRouter>;
 export type InferAPI = inferReactQueryProcedureOptions<AppRouter>

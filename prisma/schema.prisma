@@ -270,10 +270,13 @@ model Volunteers {
   project_tasks         ProjectTasks[] @relation(name: "ProjectTaskWorker")
   created_project_tasks ProjectTasks[] @relation(name: "ProjectTaskCreator")
 
-  micro_tasks            MicroTasks[]
+  micro_tasks_created MicroTasks[] @relation(name: "MicroTaskCreator")
+  micro_tasks         MicroTasks[] @relation(name: "MicroTaskWorker")
+
   project_tasks_comments ProjectTaskComments[]
   tracking_dates         TrackingDates[]
   machine_mainteneance   MachineMaintenance[]
+  machines_created               Machines[] 
 }
 
 model Persons {
@@ -413,12 +416,14 @@ model ProjectTasks {
   priority Int    @default(0) @db.SmallInt
   status   Status @default(IN_PROGRESS)
 
+  micro_tasks MicroTasks[]
+
   comments           ProjectTaskComments[]
   project_task_dates ProjectsTaskDates[]
 
   created_by_id String
 
-  project_id String 
+  project_id String
   project    Projects @relation(fields: [project_id], references: [id])
 
   deleted_at DateTime?
@@ -450,14 +455,20 @@ model ProjectTaskComments {
 }
 
 model MicroTasks {
-  id    String  @id @default(cuid())
-  name  String
-  files Files[]
-
+  id                      String                   @id @default(cuid())
+  name                    String
+  files                   Files[]
+  task_id                 String
+  task                    ProjectTasks             @relation(fields: [task_id], references: [id])
   is_completed            Boolean                  @default(false)
-  assigned_to             Volunteers[]
+  assigned_to             Volunteers[]             @relation(name: "MicroTaskWorker")
+  created_by_id           String
+  created_by              Volunteers               @relation(fields: [created_by_id], references: [id], name: "MicroTaskCreator")
+  created_at              DateTime                 @default(now())
+  updated_at              DateTime                 @updatedAt
+  deleted_at              DateTime?
+  /// A vague description of what the microtask is about
   description             String?
-  task_comment            String?
   micro_task_dates        MicroTaskDates[]
   machine_usage_microtask MachineUsageMicroTasks[]
 }
@@ -474,10 +485,9 @@ model MicroTaskDates {
 }
 
 enum MachineStatus {
-  IN_USE
-  NOT_IN_USE
-  IN_REPAIR //When it was damaged
-  IN_MAINTENANCE //Scheduled
+  USABLE
+  ///En reparacion, en el calendario deja de ser programable su uso
+  IN_REPAIR  
 }
 
 model MachineUsageMicroTasks {
@@ -490,15 +500,23 @@ model MachineUsageMicroTasks {
 
 ///Maquinas usables del fablab, puede ser una impresora 3d, puede ser otra maquina.
 model Machines {
-  id                      String                   @id @default(cuid())
-  name                    String
-  description             String?
-  status                  MachineStatus            @default(NOT_IN_USE)
-  image                   String?
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  status      MachineStatus @default(USABLE)
+  image       String?
   ///Manuales, cosas asi
+  brand       Brand         @relation(fields: [brand_id], references: [id])
+  brand_id    String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  created_by_id String
+  created_by    Volunteers @relation(fields: [created_by_id], references: [id])
+
+  deleted_at DateTime?
   files                   Files[]
-  brand                   Brand                    @relation(fields: [brand_id], references: [id])
-  brand_id                String
   machine_usage_microtask MachineUsageMicroTasks[]
   machine_mainteneance    MachineMaintenance[]
 }
@@ -507,8 +525,7 @@ model MachineMaintenance {
   id            String        @id @default(cuid())
   machine_id    String
   machine       Machines      @relation(fields: [machine_id], references: [id])
-  description   String
-  status        MachineStatus
+  description   String?
   start_date    DateTime
   end_date      DateTime
   created_by_id String
